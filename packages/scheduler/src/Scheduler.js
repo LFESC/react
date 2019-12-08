@@ -8,7 +8,7 @@
 
 /* eslint-disable no-var */
 
-import {enableSchedulerDebugging} from './SchedulerFeatureFlags';
+import { enableSchedulerDebugging } from './SchedulerFeatureFlags';
 import {
   requestHostCallback,
   cancelHostCallback,
@@ -279,7 +279,7 @@ function unstable_next(eventHandler) {
 
 function unstable_wrapCallback(callback) {
   var parentPriorityLevel = currentPriorityLevel;
-  return function() {
+  return function () {
     // This is a fork of runWithPriority, inlined for performance.
     var previousPriorityLevel = currentPriorityLevel;
     var previousEventStartTime = currentEventStartTime;

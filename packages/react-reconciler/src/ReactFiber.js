@@ -474,6 +474,9 @@ export function createHostRootFiber(tag: RootTag): Fiber {
     // Always collect profile timings when DevTools are present.
     // This enables DevTools to start capturing timing at any point–
     // Without some nodes in the tree having empty base times.
+    // 当DevTools出现时，总是收集概要文件计时。
+    // 这使得DevTools可以在任何时间点开始捕获计时
+    // 树中没有一些节点的基时间为空。
     mode |= ProfileMode;
   }
 

@@ -7,12 +7,12 @@
  * @flow
  */
 
-import type {ReactProviderType, ReactContext} from 'shared/ReactTypes';
-import type {Fiber} from './ReactFiber';
-import type {FiberRoot} from './ReactFiberRoot';
-import type {ExpirationTime} from './ReactFiberExpirationTime';
-import type {SuspenseState} from './ReactFiberSuspenseComponent';
-import type {SuspenseContext} from './ReactFiberSuspenseContext';
+import type { ReactProviderType, ReactContext } from 'shared/ReactTypes';
+import type { Fiber } from './ReactFiber';
+import type { FiberRoot } from './ReactFiberRoot';
+import type { ExpirationTime } from './ReactFiberExpirationTime';
+import type { SuspenseState } from './ReactFiberSuspenseComponent';
+import type { SuspenseContext } from './ReactFiberSuspenseContext';
 
 import checkPropTypes from 'prop-types/checkPropTypes';
 
@@ -61,8 +61,8 @@ import invariant from 'shared/invariant';
 import shallowEqual from 'shared/shallowEqual';
 import getComponentName from 'shared/getComponentName';
 import ReactStrictModeWarnings from './ReactStrictModeWarnings';
-import {refineResolvedLazyComponent} from 'shared/ReactLazyComponent';
-import {REACT_LAZY_TYPE} from 'shared/ReactSymbols';
+import { refineResolvedLazyComponent } from 'shared/ReactLazyComponent';
+import { REACT_LAZY_TYPE } from 'shared/ReactSymbols';
 import warning from 'shared/warning';
 import warningWithoutStack from 'shared/warningWithoutStack';
 import {
@@ -70,15 +70,15 @@ import {
   getCurrentFiberOwnerNameInDevOrNull,
   getCurrentFiberStackInDev,
 } from './ReactCurrentFiber';
-import {startWorkTimer, cancelWorkTimer} from './ReactDebugFiberPerf';
-import {resolveFunctionForHotReloading} from './ReactFiberHotReloading';
+import { startWorkTimer, cancelWorkTimer } from './ReactDebugFiberPerf';
+import { resolveFunctionForHotReloading } from './ReactFiberHotReloading';
 
 import {
   mountChildFibers,
   reconcileChildFibers,
   cloneChildFibers,
 } from './ReactChildFiber';
-import {processUpdateQueue} from './ReactUpdateQueue';
+import { processUpdateQueue } from './ReactUpdateQueue';
 import {
   NoWork,
   Never,
@@ -98,9 +98,9 @@ import {
   isSuspenseInstanceFallback,
   registerSuspenseInstanceRetry,
 } from './ReactFiberHostConfig';
-import type {SuspenseInstance} from './ReactFiberHostConfig';
-import {getEventTargetChildElement} from './ReactFiberHostConfig';
-import {shouldSuspend} from './ReactFiberReconciler';
+import type { SuspenseInstance } from './ReactFiberHostConfig';
+import { getEventTargetChildElement } from './ReactFiberHostConfig';
+import { shouldSuspend } from './ReactFiberReconciler';
 import {
   pushHostContext,
   pushHostContainer,
@@ -124,8 +124,8 @@ import {
   prepareToReadContext,
   calculateChangedBits,
 } from './ReactFiberNewContext';
-import {resetHooks, renderWithHooks, bailoutHooks} from './ReactFiberHooks';
-import {stopProfilerTimerIfRunning} from './ReactProfilerTimer';
+import { resetHooks, renderWithHooks, bailoutHooks } from './ReactFiberHooks';
+import { stopProfilerTimerIfRunning } from './ReactProfilerTimer';
 import {
   getMaskedContext,
   getUnmaskedContext,
@@ -160,7 +160,7 @@ import {
   createWorkInProgress,
   isSimpleFunctionComponent,
 } from './ReactFiber';
-import {requestCurrentTime, retryTimedOutBoundary} from './ReactFiberWorkLoop';
+import { requestCurrentTime, retryTimedOutBoundary } from './ReactFiberWorkLoop';
 
 const ReactCurrentOwner = ReactSharedInternals.ReactCurrentOwner;
 
@@ -195,6 +195,9 @@ export function reconcileChildren(
     // won't update its child set by applying minimal side-effects. Instead,
     // we will add them all to the child before it gets rendered. That means
     // we can optimize this reconciliation pass by not tracking side-effects.
+    // 如果这是一个尚未渲染的新组件，我们不会通过应用最小的副作用来更新它的子集合。
+    // 相反，我们将在呈现之前将它们全部添加到子元素中。
+    // 这意味着我们可以通过不跟踪副作用来优化这个调节通道。
     workInProgress.child = mountChildFibers(
       workInProgress,
       null,
@@ -757,7 +760,7 @@ function updateClassComponent(
       warning(
         didWarnAboutReassigningProps,
         'It looks like %s is reassigning its own `this.props` while rendering. ' +
-          'This is not supported and can lead to confusing bugs.',
+        'This is not supported and can lead to confusing bugs.',
         getComponentName(workInProgress.type) || 'a component',
       );
       didWarnAboutReassigningProps = true;
@@ -883,8 +886,8 @@ function updateHostRoot(current, workInProgress, renderExpirationTime) {
   invariant(
     updateQueue !== null,
     'If the root does not have an updateQueue, we should have already ' +
-      'bailed out. This error is likely caused by a bug in React. Please ' +
-      'file an issue.',
+    'bailed out. This error is likely caused by a bug in React. Please ' +
+    'file an issue.',
   );
   const nextProps = workInProgress.pendingProps;
   const prevState = workInProgress.memoizedState;
@@ -969,22 +972,30 @@ function updateHostComponent(current, workInProgress, renderExpirationTime) {
     // case. We won't handle it as a reified child. We will instead handle
     // this in the host environment that also have access to this prop. That
     // avoids allocating another HostText fiber and traversing it.
+    // 我们特殊情况下 host node 是一个 文本节点。
+    // 这是一个常见的情况。
+    // 我们不会把它当作一个具体化的 child 来对待。
+    // 我们将在主机环境中处理这个问题，主机环境也可以访问这个 prop。
+    // 这避免了分配另一个 HostText fiber 并遍历它。
     nextChildren = null;
   } else if (prevProps !== null && shouldSetTextContent(type, prevProps)) {
     // If we're switching from a direct text child to a normal child, or to
     // empty, we need to schedule the text content to be reset.
+    // 如果我们要从一个直接的文本子节点切换到一个正常的子节点，或者切换到空节点，那么我们需要安排重置文本内容。
     workInProgress.effectTag |= ContentReset;
   }
 
   markRef(current, workInProgress);
 
   // Check the host config to see if the children are offscreen/hidden.
+  // 检查主机配置，看看孩子是否在屏幕外/隐藏。
   if (
     workInProgress.mode & ConcurrentMode &&
     renderExpirationTime !== Never &&
     shouldDeprioritizeSubtree(type, nextProps)
   ) {
     // Schedule this fiber to re-render at offscreen priority. Then bailout.
+    // 将此 fiber 按屏幕外优先级重新渲染。然后放弃。
     workInProgress.expirationTime = workInProgress.childExpirationTime = Never;
     return null;
   }
@@ -1120,7 +1131,7 @@ function mountLazyComponent(
       invariant(
         false,
         'Element type is invalid. Received a promise that resolves to: %s. ' +
-          'Lazy element type must resolve to a class or function.%s',
+        'Lazy element type must resolve to a class or function.%s',
         Component,
         hint,
       );
@@ -1223,7 +1234,7 @@ function mountIndeterminateComponent(
         warningWithoutStack(
           false,
           "The <%s /> component appears to have a render method, but doesn't extend React.Component. " +
-            'This is likely to cause errors. Change %s to extend React.Component instead.',
+          'This is likely to cause errors. Change %s to extend React.Component instead.',
           componentName,
           componentName,
         );
@@ -1269,10 +1280,10 @@ function mountIndeterminateComponent(
         warningWithoutStack(
           false,
           'The <%s /> component appears to be a function component that returns a class instance. ' +
-            'Change %s to a class that extends React.Component instead. ' +
-            "If you can't use a class try assigning the prototype on the function as a workaround. " +
-            "`%s.prototype = React.Component.prototype`. Don't use an arrow function since it " +
-            'cannot be called with `new` by React.',
+          'Change %s to a class that extends React.Component instead. ' +
+          "If you can't use a class try assigning the prototype on the function as a workaround. " +
+          "`%s.prototype = React.Component.prototype`. Don't use an arrow function since it " +
+          'cannot be called with `new` by React.',
           componentName,
           componentName,
           componentName,
@@ -1376,8 +1387,8 @@ function validateFunctionComponentInDev(workInProgress: Fiber, Component: any) {
       warning(
         false,
         'Function components cannot be given refs. ' +
-          'Attempts to access this ref will fail. ' +
-          'Did you mean to use React.forwardRef()?%s',
+        'Attempts to access this ref will fail. ' +
+        'Did you mean to use React.forwardRef()?%s',
         info,
       );
     }
@@ -1484,7 +1495,7 @@ function updateSuspenseComponent(
         warning(
           false,
           'maxDuration has been removed from React. ' +
-            'Remove the maxDuration prop.',
+          'Remove the maxDuration prop.',
         );
       }
     }
@@ -1782,7 +1793,7 @@ function retrySuspenseComponentWithoutHydrating(
   invariant(
     returnFiber !== null,
     'Suspense boundaries are never on the root. ' +
-      'This is probably a bug in React.',
+    'This is probably a bug in React.',
   );
   const last = returnFiber.lastEffect;
   if (last !== null) {
@@ -1919,6 +1930,10 @@ function updatePortalComponent(
     // flow doesn't do during mount. This doesn't happen at the root because
     // the root always starts with a "current" with a null child.
     // TODO: Consider unifying this with how the root works.
+    // Portals 是特殊的，因为我们不在挂载期间追加子节点，而是在提交时追加。
+    // 因此，我们需要跟踪正常流在挂载期间不会执行的插入。
+    // 这不会在根节点上发生，因为根节点总是以一个“current”开头，它的子节点是null。
+    // TODO:考虑将其与根的工作方式统一起来。
     workInProgress.child = reconcileChildFibers(
       workInProgress,
       null,
@@ -2023,7 +2038,7 @@ function updateContextConsumer(
           warning(
             false,
             'Rendering <Context> directly is not supported and will be removed in ' +
-              'a future major release. Did you mean to render <Context.Consumer> instead?',
+            'a future major release. Did you mean to render <Context.Consumer> instead?',
           );
         }
       }
@@ -2038,9 +2053,9 @@ function updateContextConsumer(
     warningWithoutStack(
       typeof render === 'function',
       'A context consumer was rendered with multiple children, or a child ' +
-        "that isn't a function. A context consumer expects a single child " +
-        'that is a function. If you did pass a function, make sure there ' +
-        'is no trailing or leading whitespace around it.',
+      "that isn't a function. A context consumer expects a single child " +
+      'that is a function. If you did pass a function, make sure there ' +
+      'is no trailing or leading whitespace around it.',
     );
   }
 
@@ -2201,7 +2216,7 @@ function remountFiber(
   } else {
     throw new Error(
       'Did not expect this call in production. ' +
-        'This is a bug in React. Please file an issue.',
+      'This is a bug in React. Please file an issue.',
     );
   }
 }
@@ -2561,8 +2576,8 @@ function beginWork(
   invariant(
     false,
     'Unknown unit of work tag. This error is likely caused by a bug in ' +
-      'React. Please file an issue.',
+    'React. Please file an issue.',
   );
 }
 
-export {beginWork};
+export { beginWork };

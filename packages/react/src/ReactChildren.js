@@ -134,6 +134,7 @@ function traverseAllChildrenImpl(
       children,
       // If it's the only child, treat the name as if it was wrapped in an array
       // so that it's consistent if the number of children grows.
+      // 如果它是惟一的子元素，则将该名称视为包装在数组中，以便在子元素数量增长时保持一致。
       nameSoFar === '' ? SEPARATOR + getComponentKey(children, 0) : nameSoFar,
     );
     return 1;
@@ -251,6 +252,7 @@ function getComponentKey(component, index) {
     return escape(component.key);
   }
   // Implicit key determined by the index in the set
+  // 以36为基数进行转换
   return index.toString(36);
 }
 
@@ -285,6 +287,7 @@ function forEachChildren(children, forEachFunc, forEachContext) {
   releaseTraverseContext(traverseContext);
 }
 
+// bookKeeping就是traverseContext
 function mapSingleChildIntoContext(bookKeeping, child, childKey) {
   const {result, keyPrefix, func, context} = bookKeeping;
 
@@ -297,6 +300,8 @@ function mapSingleChildIntoContext(bookKeeping, child, childKey) {
         mappedChild,
         // Keep both the (mapped) and old keys if they differ, just as
         // traverseAllChildren used to do for objects as children
+        // 保留(映射的)键和旧键，如果它们不同，就像
+        // traverseAllChildren过去用作对象的子对象
         keyPrefix +
           (mappedChild.key && (!child || child.key !== mappedChild.key)
             ? escapeUserProvidedKey(mappedChild.key) + '/'

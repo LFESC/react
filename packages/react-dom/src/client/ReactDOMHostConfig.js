@@ -9,7 +9,7 @@
 
 import * as Scheduler from 'scheduler';
 
-import {precacheFiberNode, updateFiberProps} from './ReactDOMComponentTree';
+import { precacheFiberNode, updateFiberProps } from './ReactDOMComponentTree';
 import {
   createElement,
   createTextNode,
@@ -26,15 +26,15 @@ import {
   warnForInsertedHydratedText,
   listenToEventResponderEventTypes,
 } from './ReactDOMComponent';
-import {getSelectionInformation, restoreSelection} from './ReactInputSelection';
+import { getSelectionInformation, restoreSelection } from './ReactInputSelection';
 import setTextContent from './setTextContent';
-import {validateDOMNesting, updatedAncestorInfo} from './validateDOMNesting';
+import { validateDOMNesting, updatedAncestorInfo } from './validateDOMNesting';
 import {
   isEnabled as ReactBrowserEventEmitterIsEnabled,
   setEnabled as ReactBrowserEventEmitterSetEnabled,
 } from '../events/ReactBrowserEventEmitter';
-import {Namespaces, getChildNamespace} from '../shared/DOMNamespaces';
-import {addRootEventTypesForComponentInstance} from '../events/DOMEventResponderSystem';
+import { Namespaces, getChildNamespace } from '../shared/DOMNamespaces';
+import { addRootEventTypesForComponentInstance } from '../events/DOMEventResponderSystem';
 import {
   ELEMENT_NODE,
   TEXT_NODE,
@@ -44,14 +44,14 @@ import {
 } from '../shared/HTMLNodeType';
 import dangerousStyleValue from '../shared/dangerousStyleValue';
 
-import type {DOMContainer} from './ReactDOM';
-import type {ReactEventComponentInstance} from 'shared/ReactTypes';
+import type { DOMContainer } from './ReactDOM';
+import type { ReactEventComponentInstance } from 'shared/ReactTypes';
 import {
   mountEventResponder,
   unmountEventResponder,
 } from '../events/DOMEventResponderSystem';
-import {REACT_EVENT_TARGET_TOUCH_HIT} from 'shared/ReactSymbols';
-import {canUseDOM} from 'shared/ExecutionEnvironment';
+import { REACT_EVENT_TARGET_TOUCH_HIT } from 'shared/ReactSymbols';
+import { canUseDOM } from 'shared/ExecutionEnvironment';
 
 export type Type = string;
 export type Props = {
@@ -84,15 +84,15 @@ export type EventTargetChildElement = {
 export type Container = Element | Document;
 export type Instance = Element;
 export type TextInstance = Text;
-export type SuspenseInstance = Comment & {_reactRetry?: () => void};
+export type SuspenseInstance = Comment & { _reactRetry?: () => void };
 export type HydratableInstance = Instance | TextInstance | SuspenseInstance;
 export type PublicInstance = Element | Text;
 type HostContextDev = {
   namespace: string,
   ancestorInfo: mixed,
   eventData: null | {|
-    isEventComponent?: boolean,
-    isEventTarget?: boolean,
+  isEventComponent?: boolean,
+  isEventTarget?: boolean,
   |},
 };
 type HostContextProd = string;
@@ -108,7 +108,7 @@ import {
 } from 'shared/ReactFeatureFlags';
 import warning from 'shared/warning';
 
-const {html: HTML_NAMESPACE} = Namespaces;
+const { html: HTML_NAMESPACE } = Namespaces;
 
 // Intentionally not named imports because Rollup would
 // use dynamic dispatch for CommonJS interop named imports.
@@ -119,7 +119,7 @@ const {
   unstable_cancelCallback: cancelDeferredCallback,
 } = Scheduler;
 
-export {now, scheduleDeferredCallback, shouldYield, cancelDeferredCallback};
+export { now, scheduleDeferredCallback, shouldYield, cancelDeferredCallback };
 
 let SUPPRESS_HYDRATION_WARNING;
 if (__DEV__) {
@@ -177,7 +177,7 @@ export function getRootHostContext(
   if (__DEV__) {
     const validatedTag = type.toLowerCase();
     const ancestorInfo = updatedAncestorInfo(null, validatedTag);
-    return {namespace, ancestorInfo, eventData: null};
+    return { namespace, ancestorInfo, eventData: null };
   }
   return namespace;
 }
@@ -194,7 +194,7 @@ export function getChildHostContext(
       parentHostContextDev.ancestorInfo,
       type,
     );
-    return {namespace, ancestorInfo, eventData: null};
+    return { namespace, ancestorInfo, eventData: null };
   }
   const parentNamespace = ((parentHostContext: any): HostContextProd);
   return getChildNamespace(parentNamespace, type);
@@ -205,17 +205,17 @@ export function getChildHostContextForEventComponent(
 ): HostContext {
   if (__DEV__) {
     const parentHostContextDev = ((parentHostContext: any): HostContextDev);
-    const {namespace, ancestorInfo} = parentHostContextDev;
+    const { namespace, ancestorInfo } = parentHostContextDev;
     warning(
       parentHostContextDev.eventData === null ||
-        !parentHostContextDev.eventData.isEventTarget,
+      !parentHostContextDev.eventData.isEventTarget,
       'validateDOMNesting: React event targets must not have event components as children.',
     );
     const eventData = {
       isEventComponent: true,
       isEventTarget: false,
     };
-    return {namespace, ancestorInfo, eventData};
+    return { namespace, ancestorInfo, eventData };
   }
   return parentHostContext;
 }
@@ -226,19 +226,19 @@ export function getChildHostContextForEventTarget(
 ): HostContext {
   if (__DEV__) {
     const parentHostContextDev = ((parentHostContext: any): HostContextDev);
-    const {namespace, ancestorInfo} = parentHostContextDev;
+    const { namespace, ancestorInfo } = parentHostContextDev;
     if (type === REACT_EVENT_TARGET_TOUCH_HIT) {
       warning(
         parentHostContextDev.eventData === null ||
-          !parentHostContextDev.eventData.isEventComponent,
+        !parentHostContextDev.eventData.isEventComponent,
         'validateDOMNesting: <TouchHitTarget> cannot not be a direct child of an event component. ' +
-          'Ensure <TouchHitTarget> is a direct child of a DOM element.',
+        'Ensure <TouchHitTarget> is a direct child of a DOM element.',
       );
       const parentNamespace = parentHostContextDev.namespace;
       if (parentNamespace !== HTML_NAMESPACE) {
         throw new Error(
           '<TouchHitTarget> was used in an unsupported DOM namespace. ' +
-            'Ensure the <TouchHitTarget> is used in an HTML namespace.',
+          'Ensure the <TouchHitTarget> is used in an HTML namespace.',
         );
       }
     }
@@ -246,7 +246,7 @@ export function getChildHostContextForEventTarget(
       isEventComponent: false,
       isEventTarget: true,
     };
-    return {namespace, ancestorInfo, eventData};
+    return { namespace, ancestorInfo, eventData };
   }
   return parentHostContext;
 }
@@ -388,7 +388,7 @@ export function createTextInstance(
         warning(
           !eventData.isEventComponent,
           'validateDOMNesting: React event components cannot have text DOM nodes as children. ' +
-            'Wrap the child text "%s" in an element.',
+          'Wrap the child text "%s" in an element.',
           text,
         );
       }
@@ -601,8 +601,8 @@ export function unhideInstance(instance: Instance, props: Props): void {
   const styleProp = props[STYLE];
   const display =
     styleProp !== undefined &&
-    styleProp !== null &&
-    styleProp.hasOwnProperty('display')
+      styleProp !== null &&
+      styleProp.hasOwnProperty('display')
       ? styleProp.display
       : null;
   instance.style.display = dangerousStyleValue('display', display);
@@ -686,7 +686,7 @@ export function getNextHydratableSibling(
     (!enableSuspenseServerRenderer ||
       node.nodeType !== COMMENT_NODE ||
       ((node: any).data !== SUSPENSE_START_DATA &&
-        (node: any).data !== SUSPENSE_PENDING_START_DATA &&
+      (node: any).data !== SUSPENSE_PENDING_START_DATA &&
         (node: any).data !== SUSPENSE_FALLBACK_START_DATA))
   ) {
     node = node.nextSibling;
@@ -706,7 +706,7 @@ export function getFirstHydratableChild(
     (!enableSuspenseServerRenderer ||
       next.nodeType !== COMMENT_NODE ||
       ((next: any).data !== SUSPENSE_START_DATA &&
-        (next: any).data !== SUSPENSE_FALLBACK_START_DATA &&
+      (next: any).data !== SUSPENSE_FALLBACK_START_DATA &&
         (next: any).data !== SUSPENSE_PENDING_START_DATA))
   ) {
     next = next.nextSibling;
@@ -899,7 +899,7 @@ export function mountEventComponent(
     const rootContainerInstance = ((eventComponentInstance.rootInstance: any): Container);
     const rootElement = rootContainerInstance.ownerDocument;
     const responder = eventComponentInstance.responder;
-    const {rootEventTypes, targetEventTypes} = responder;
+    const { rootEventTypes, targetEventTypes } = responder;
     if (targetEventTypes !== undefined) {
       listenToEventResponderEventTypes(targetEventTypes, rootElement);
     }
@@ -935,7 +935,7 @@ export function getEventTargetChildElement(
 ): null | EventTargetChildElement {
   if (enableEventAPI) {
     if (type === REACT_EVENT_TARGET_TOUCH_HIT) {
-      const {bottom, left, right, top} = props;
+      const { bottom, left, right, top } = props;
 
       if (!bottom && !left && !right && !top) {
         return null;
@@ -994,17 +994,17 @@ export function commitEventTarget(
         warning(
           position !== '' && position !== 'static',
           '<TouchHitTarget> inserts an empty absolutely positioned <div>. ' +
-            'This requires its parent DOM node to be positioned too, but the ' +
-            'parent DOM node was found to have the style "position" set to ' +
-            'either no value, or a value of "static". Try using a "position" ' +
-            'value of "relative".',
+          'This requires its parent DOM node to be positioned too, but the ' +
+          'parent DOM node was found to have the style "position" set to ' +
+          'either no value, or a value of "static". Try using a "position" ' +
+          'value of "relative".',
         );
         warning(
           computedStyles.getPropertyValue('z-index') !== '',
           '<TouchHitTarget> inserts an empty <div> with "z-index" of "-1". ' +
-            'This requires its parent DOM node to have a "z-index" greater than "-1",' +
-            'but the parent DOM node was found to no "z-index" value set.' +
-            ' Try using a "z-index" value of "0" or greater.',
+          'This requires its parent DOM node to have a "z-index" greater than "-1",' +
+          'but the parent DOM node was found to no "z-index" value set.' +
+          ' Try using a "z-index" value of "0" or greater.',
         );
       }
     }

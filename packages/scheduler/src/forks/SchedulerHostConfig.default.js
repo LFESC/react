@@ -12,6 +12,11 @@
 // rate. By separating the idle call into a separate event tick we ensure that
 // layout, paint and other browser work is counted against the available time.
 // The frame rate is dynamically adjusted.
+// DOM调度器实现类似于requestIdleCallback。
+// 它的工作方式是调度一个requestAnimationFrame，存储帧开始的时间，然后调度一个postMessage，在绘制之后调度。
+// 在postMessage处理程序中完成尽可能多的工作，直到时间+帧速率。
+// 通过将空闲调用分离到一个单独的事件标记中，我们可以确保布局、绘制和其他浏览器工作都是根据可用时间计算的。
+// 帧速率是动态调整的。
 
 export let requestHostCallback;
 export let cancelHostCallback;
@@ -50,17 +55,21 @@ const localCancelAnimationFrame =
 // continues to load in the background. So we also schedule a 'setTimeout' as
 // a fallback.
 // TODO: Need a better heuristic for backgrounded work.
+// 当标签在后台时，requestAnimationFrame不运行。
+// 如果我们是后台的，我们更希望工作发生，这样页面继续在后台加载。
+// 因此，我们还安排了一个“setTimeout”作为后备。
+// TODO:需要一个更好的启发式的背景工作。
 const ANIMATION_FRAME_TIMEOUT = 100;
 let rAFID;
 let rAFTimeoutID;
-const requestAnimationFrameWithTimeout = function(callback) {
+const requestAnimationFrameWithTimeout = function (callback) {
   // schedule rAF and also a setTimeout
-  rAFID = localRequestAnimationFrame(function(timestamp) {
+  rAFID = localRequestAnimationFrame(function (timestamp) {
     // cancel the setTimeout
     localClearTimeout(rAFTimeoutID);
     callback(timestamp);
   });
-  rAFTimeoutID = localSetTimeout(function() {
+  rAFTimeoutID = localSetTimeout(function () {
     // cancel the requestAnimationFrame
     localCancelAnimationFrame(rAFID);
     callback(getCurrentTime());
@@ -69,11 +78,11 @@ const requestAnimationFrameWithTimeout = function(callback) {
 
 if (hasNativePerformanceNow) {
   const Performance = performance;
-  getCurrentTime = function() {
+  getCurrentTime = function () {
     return Performance.now();
   };
 } else {
-  getCurrentTime = function() {
+  getCurrentTime = function () {
     return localDate.now();
   };
 }
@@ -88,7 +97,7 @@ if (
   // If this accidentally gets imported in a non-browser environment, e.g. JavaScriptCore,
   // fallback to a naive implementation.
   let _callback = null;
-  const _flushCallback = function(didTimeout) {
+  const _flushCallback = function (didTimeout) {
     if (_callback !== null) {
       try {
         _callback(didTimeout);
@@ -97,7 +106,7 @@ if (
       }
     }
   };
-  requestHostCallback = function(cb, ms) {
+  requestHostCallback = function (cb, ms) {
     if (_callback !== null) {
       // Protect against re-entrancy.
       setTimeout(requestHostCallback, 0, cb);
@@ -106,28 +115,28 @@ if (
       setTimeout(_flushCallback, 0, false);
     }
   };
-  cancelHostCallback = function() {
+  cancelHostCallback = function () {
     _callback = null;
   };
-  shouldYieldToHost = function() {
+  shouldYieldToHost = function () {
     return false;
   };
-  forceFrameRate = function() {};
+  forceFrameRate = function () { };
 } else {
   if (typeof console !== 'undefined') {
     // TODO: Remove fb.me link
     if (typeof localRequestAnimationFrame !== 'function') {
       console.error(
         "This browser doesn't support requestAnimationFrame. " +
-          'Make sure that you load a ' +
-          'polyfill in older browsers. https://fb.me/react-polyfills',
+        'Make sure that you load a ' +
+        'polyfill in older browsers. https://fb.me/react-polyfills',
       );
     }
     if (typeof localCancelAnimationFrame !== 'function') {
       console.error(
         "This browser doesn't support cancelAnimationFrame. " +
-          'Make sure that you load a ' +
-          'polyfill in older browsers. https://fb.me/react-polyfills',
+        'Make sure that you load a ' +
+        'polyfill in older browsers. https://fb.me/react-polyfills',
       );
     }
   }
@@ -148,15 +157,15 @@ if (
   let activeFrameTime = 33;
   let fpsLocked = false;
 
-  shouldYieldToHost = function() {
+  shouldYieldToHost = function () {
     return frameDeadline <= getCurrentTime();
   };
 
-  forceFrameRate = function(fps) {
+  forceFrameRate = function (fps) {
     if (fps < 0 || fps > 125) {
       console.error(
         'forceFrameRate takes a positive int between 0 and 125, ' +
-          'forcing framerates higher than 125 fps is not unsupported',
+        'forcing framerates higher than 125 fps is not unsupported',
       );
       return;
     }
@@ -173,7 +182,7 @@ if (
   // We use the postMessage trick to defer idle work until after the repaint.
   const channel = new MessageChannel();
   const port = channel.port2;
-  channel.port1.onmessage = function(event) {
+  channel.port1.onmessage = function (event) {
     isMessageEventScheduled = false;
 
     const prevScheduledCallback = scheduledHostCallback;
@@ -215,7 +224,7 @@ if (
     }
   };
 
-  const animationTick = function(rafTime) {
+  const animationTick = function (rafTime) {
     if (scheduledHostCallback !== null) {
       // Eagerly schedule the next animation callback at the beginning of the
       // frame. If the scheduler queue is not empty at the end of the frame, it
@@ -225,6 +234,11 @@ if (
       // waited until the end of the frame to post the callback, we risk the
       // browser skipping a frame and not firing the callback until the frame
       // after that.
+      // 在帧的开头急切地安排下一个动画回调。
+      // 如果调度器队列在帧结束时不是空的，它将继续在回调中刷新。
+      // 如果队列*是*空的，那么它将立即退出。
+      // 在框架的开始处发布回调可以确保它在尽可能早的框架内被触发。
+      // 如果我们等到帧的末尾才发布回调，那么我们就冒着浏览器跳过一帧的风险，直到那之后的帧才触发回调。
       requestAnimationFrameWithTimeout(animationTick);
     } else {
       // No pending work. Exit.
@@ -262,7 +276,7 @@ if (
     }
   };
 
-  requestHostCallback = function(callback, absoluteTimeout) {
+  requestHostCallback = function (callback, absoluteTimeout) {
     scheduledHostCallback = callback;
     timeoutTime = absoluteTimeout;
     if (isFlushingHostCallback || absoluteTimeout < 0) {
@@ -278,7 +292,7 @@ if (
     }
   };
 
-  cancelHostCallback = function() {
+  cancelHostCallback = function () {
     scheduledHostCallback = null;
     isMessageEventScheduled = false;
     timeoutTime = -1;

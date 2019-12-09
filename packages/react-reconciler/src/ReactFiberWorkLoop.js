@@ -356,6 +356,7 @@ export function scheduleUpdateOnFiber(
   recordScheduleUpdate();
 
   if (expirationTime === Sync) {
+    // ReactDom.render 初次渲染，因为初次渲染调用了 unbatchedUpdates 方法设置了 workPhase = LegacyUnbatchedPhase
     if (workPhase === LegacyUnbatchedPhase) {
       // Register pending interactions on the root to avoid losing traced interaction data.
       schedulePendingInteraction(root, expirationTime);

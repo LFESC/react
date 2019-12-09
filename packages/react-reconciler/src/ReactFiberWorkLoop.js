@@ -533,6 +533,8 @@ function scheduleCallbackForRoot(
         // Scheduled an async callback, and we're not already working. Add an
         // entry to the flamegraph that shows we're waiting for a callback
         // to fire.
+        // 调度了一个异步回调，但我们还没有开始工作。
+        // 向flamegraph添加一个条目，显示我们正在等待一个回调触发。
         startRequestCallbackTimer();
       }
     }

@@ -10,7 +10,7 @@
 // Intentionally not named imports because Rollup would use dynamic dispatch for
 // CommonJS interop named imports.
 import * as Scheduler from 'scheduler';
-import {__interactionsRef} from 'scheduler/tracing';
+import { __interactionsRef } from 'scheduler/tracing';
 import {
   disableYielding,
   enableSchedulerTracing,
@@ -38,10 +38,10 @@ if (enableSchedulerTracing) {
   invariant(
     __interactionsRef != null && __interactionsRef.current != null,
     'It is not supported to run the profiling version of a renderer (for ' +
-      'example, `react-dom/profiling`) without also replacing the ' +
-      '`scheduler/tracing` module with `scheduler/tracing-profiling`. Your ' +
-      'bundler might have a setting for aliasing both modules. Learn more at ' +
-      'http://fb.me/react-profiling',
+    'example, `react-dom/profiling`) without also replacing the ' +
+    '`scheduler/tracing` module with `scheduler/tracing-profiling`. Your ' +
+    'bundler might have a setting for aliasing both modules. Learn more at ' +
+    'http://fb.me/react-profiling',
   );
 }
 
@@ -138,6 +138,8 @@ export function scheduleCallback(
 export function scheduleSyncCallback(callback: SchedulerCallback) {
   // Push this callback into an internal queue. We'll flush these either in
   // the next tick, or earlier if something calls `flushSyncCallbackQueue`.
+  // 将这个回调推入一个内部队列。
+  // 我们会在下一次刷新，或者更早的时候调用‘flushSyncCallbackQueue’。
   if (syncQueue === null) {
     syncQueue = [callback];
     // Flush the queue in the next tick, at the earliest.
@@ -148,6 +150,8 @@ export function scheduleSyncCallback(callback: SchedulerCallback) {
   } else {
     // Push onto existing queue. Don't need to schedule a callback because
     // we already scheduled one when we created the queue.
+    // 推入现有队列。
+    // 不需要调度回调，因为我们在创建队列时已经调度了回调。
     syncQueue.push(callback);
   }
   return fakeCallbackNode;

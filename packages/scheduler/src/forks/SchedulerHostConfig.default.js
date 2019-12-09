@@ -180,6 +180,7 @@ if (
   };
 
   // We use the postMessage trick to defer idle work until after the repaint.
+  // 我们使用postMessage技巧将空闲工作延迟到重新绘制之后。
   const channel = new MessageChannel();
   const port = channel.port2;
   channel.port1.onmessage = function (event) {
@@ -196,9 +197,12 @@ if (
     if (frameDeadline - currentTime <= 0) {
       // There's no time left in this idle period. Check if the callback has
       // a timeout and whether it's been exceeded.
+      // 在这段空闲时间里没有时间了。
+      // 检查回调是否有超时，是否已经超时。
       if (prevTimeoutTime !== -1 && prevTimeoutTime <= currentTime) {
         // Exceeded the timeout. Invoke the callback even though there's no
         // time left.
+        // 超时。即使没有时间，也要调用回调。
         didTimeout = true;
       } else {
         // No timeout.
@@ -208,6 +212,7 @@ if (
           requestAnimationFrameWithTimeout(animationTick);
         }
         // Exit without invoking the callback.
+        // 退出而不调用回调。
         scheduledHostCallback = prevScheduledCallback;
         timeoutTime = prevTimeoutTime;
         return;
@@ -255,6 +260,9 @@ if (
       if (nextFrameTime < 8) {
         // Defensive coding. We don't support higher frame rates than 120hz.
         // If the calculated frame time gets lower than 8, it is probably a bug.
+        // 防御性编码。
+        // 我们不支持高于120hz的帧速率。
+        // 如果计算的帧时间低于8，这可能是一个bug。
         nextFrameTime = 8;
       }
       // If one frame goes long, then the next one can be short to catch up.
@@ -264,6 +272,11 @@ if (
       // running on 120hz display or 90hz VR display.
       // Take the max of the two in case one of them was an anomaly due to
       // missed frame deadlines.
+      // 如果一帧很长，那么下一帧就会很短，以便赶上。
+      // 如果连续两帧都很短，那就说明我们的帧率比当前优化的帧率要高。
+      // 我们相应地动态调整启发式。
+      // 例如，如果我们运行120hz显示器或90hz VR显示器。
+      // 以最大的两个，以防其中一个是一个异常，因为错过了框架的最后期限。
       activeFrameTime =
         nextFrameTime < previousFrameTime ? previousFrameTime : nextFrameTime;
     } else {
@@ -287,6 +300,8 @@ if (
       // TODO: If this rAF doesn't materialize because the browser throttles, we
       // might want to still have setTimeout trigger rIC as a backup to ensure
       // that we keep performing work.
+      // 如果rAF还没有安排，我们需要安排一个帧。
+      // TODO:如果这个rAF因为浏览器的节流而没有实现，我们可能还需要setTimeout触发器rIC作为备份，以确保我们继续执行工作。
       isAnimationFrameScheduled = true;
       requestAnimationFrameWithTimeout(animationTick);
     }

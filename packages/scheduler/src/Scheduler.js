@@ -61,6 +61,7 @@ function scheduleHostCallbackIfNeeded() {
   }
   if (firstCallbackNode !== null) {
     // Schedule the host callback using the earliest expiration in the list.
+    // 使用列表中最早的到期时间来调度主机回调。
     var expirationTime = firstCallbackNode.expirationTime;
     if (isHostCallbackScheduled) {
       // Cancel the existing host callback.
@@ -346,6 +347,8 @@ function unstable_scheduleCallback(
   // Insert the new callback into the list, ordered first by expiration, then
   // by insertion. So the new callback is inserted after any other callback
   // with equal expiration.
+  // 将新的回调函数插入到列表中，按过期顺序排序，然后按插入顺序排序。
+  // 因此，新的回调被插入到任何其他具有相同到期时间的回调之后。
   if (firstCallbackNode === null) {
     // This is the first callback in the list.
     firstCallbackNode = newNode.next = newNode.previous = newNode;
@@ -365,9 +368,11 @@ function unstable_scheduleCallback(
     if (next === null) {
       // No callback with a later expiration was found, which means the new
       // callback has the latest expiration in the list.
+      // 没有找到过期时间较晚的回调，这意味着新回调在列表中拥有最新的过期时间。
       next = firstCallbackNode;
     } else if (next === firstCallbackNode) {
       // The new callback has the earliest expiration in the entire list.
+      // 新的回调在整个列表中有最早的到期时间。
       firstCallbackNode = newNode;
       scheduleHostCallbackIfNeeded();
     }

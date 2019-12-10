@@ -560,6 +560,8 @@ function runRootCallback(root, callback, isSync) {
     // corresponding callback node from the root. Unless the callback node
     // has changed, which implies that it was already cancelled by a high
     // priority update.
+    // 如果回调退出而不返回延续，则从根目录中删除相应的回调节点。
+    // 除非回调节点已更改，这意味着它已被高优先级更新取消。
     if (continuation === null && prevCallbackNode === root.callbackNode) {
       root.callbackNode = null;
       root.callbackExpirationTime = NoWork;

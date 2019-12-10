@@ -78,9 +78,12 @@ function flushFirstCallback() {
 
   // Remove the node from the list before calling the callback. That way the
   // list is in a consistent state even if the callback throws.
+  // 在调用回调之前从列表中删除节点。
+  // 这样，即使回调抛出，列表也处于一致的状态。
   var next = firstCallbackNode.next;
   if (firstCallbackNode === next) {
     // This is the last callback in the list.
+    // 这是列表中的最后一个回调。
     firstCallbackNode = null;
     next = null;
   } else {
@@ -104,6 +107,7 @@ function flushFirstCallback() {
     const didUserCallbackTimeout =
       currentHostCallbackDidTimeout ||
       // Immediate priority callbacks are always called as if they timed out
+      // 立即优先级回调总是像超时一样被调用
       priorityLevel === ImmediatePriority;
     continuationCallback = callback(didUserCallbackTimeout);
   } catch (error) {
@@ -115,6 +119,8 @@ function flushFirstCallback() {
 
   // A callback may return a continuation. The continuation should be scheduled
   // with the same priority and expiration as the just-finished callback.
+  // 回调可以返回一个延续。
+  // 延续应该与刚刚完成的回调具有相同的优先级和过期时间。
   if (typeof continuationCallback === 'function') {
     var continuationNode: CallbackNode = {
       callback: continuationCallback,
@@ -128,8 +134,11 @@ function flushFirstCallback() {
     // almost the same as the code in `scheduleCallback`, except the callback
     // is inserted into the list *before* callbacks of equal expiration instead
     // of after.
+    // 将新的回调函数插入到列表中，根据它的到期时间排序。
+    // 这与' scheduleCallback '中的代码几乎相同，只不过回调是插入到列表*before* callbacks中而不是后面。
     if (firstCallbackNode === null) {
       // This is the first callback in the list.
+      // 这是列表中的第一个回调。
       firstCallbackNode = continuationNode.next = continuationNode.previous = continuationNode;
     } else {
       var nextAfterContinuation = null;
@@ -138,6 +147,8 @@ function flushFirstCallback() {
         if (node.expirationTime >= expirationTime) {
           // This callback expires at or after the continuation. We will insert
           // the continuation *before* this callback.
+          // 这个回调在延续时或之后过期。
+          // 我们将在这个回调之前插入延续*。
           nextAfterContinuation = node;
           break;
         }
@@ -147,9 +158,11 @@ function flushFirstCallback() {
       if (nextAfterContinuation === null) {
         // No equal or lower priority callback was found, which means the new
         // callback is the lowest priority callback in the list.
+        // 没有找到同等或较低优先级的回调，这意味着新的回调是列表中优先级最低的回调。
         nextAfterContinuation = firstCallbackNode;
       } else if (nextAfterContinuation === firstCallbackNode) {
         // The new callback is the highest priority callback in the list.
+        // 新的回调是列表中优先级最高的回调。
         firstCallbackNode = continuationNode;
         scheduleHostCallbackIfNeeded();
       }
@@ -164,11 +177,13 @@ function flushFirstCallback() {
 
 function flushWork(didUserCallbackTimeout) {
   // Exit right away if we're currently paused
+  // 如果我们当前暂停，立即退出
   if (enableSchedulerDebugging && isSchedulerPaused) {
     return;
   }
 
   // We'll need a new host callback the next time work is scheduled.
+  // 我们需要一个新的 host callback 在下一次执行时调度。
   isHostCallbackScheduled = false;
 
   isPerformingWork = true;
@@ -177,6 +192,7 @@ function flushWork(didUserCallbackTimeout) {
   try {
     if (didUserCallbackTimeout) {
       // Flush all the expired callbacks without yielding.
+      // 刷新所有过期的回调而不中断。
       while (
         firstCallbackNode !== null &&
         !(enableSchedulerDebugging && isSchedulerPaused)
@@ -185,6 +201,10 @@ function flushWork(didUserCallbackTimeout) {
         // Read the current time. Flush all the callbacks that expire at or
         // earlier than that time. Then read the current time again and repeat.
         // This optimizes for as few performance.now calls as possible.
+        // TODO包装在功能标志读取当前时间。
+        // 刷新在那个时间点或之前过期的所有回调。
+        // 然后再读一遍当前时间并重复。
+        // 这是为了更少 performance.now 调用的尽可能的优化
         var currentTime = getCurrentTime();
         if (firstCallbackNode.expirationTime <= currentTime) {
           do {
@@ -200,6 +220,7 @@ function flushWork(didUserCallbackTimeout) {
       }
     } else {
       // Keep flushing callbacks until we run out of time in the frame.
+      // 一直刷新回调，直到帧中的时间用完。
       if (firstCallbackNode !== null) {
         do {
           if (enableSchedulerDebugging && isSchedulerPaused) {
@@ -213,6 +234,7 @@ function flushWork(didUserCallbackTimeout) {
     isPerformingWork = false;
     currentHostCallbackDidTimeout = previousDidTimeout;
     // There's still work remaining. Request another callback.
+    // 还有工作要做。请求另一个回调。
     scheduleHostCallbackIfNeeded();
   }
 }

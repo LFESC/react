@@ -143,6 +143,7 @@ export function scheduleSyncCallback(callback: SchedulerCallback) {
   if (syncQueue === null) {
     syncQueue = [callback];
     // Flush the queue in the next tick, at the earliest.
+    // 最迟在下一次刷新队列。
     immediateQueueCallbackNode = Scheduler_scheduleCallback(
       Scheduler_ImmediatePriority,
       flushSyncCallbackQueueImpl,
@@ -172,7 +173,8 @@ export function flushSyncCallbackQueue() {
 
 function flushSyncCallbackQueueImpl() {
   if (!isFlushingSyncQueue && syncQueue !== null) {
-    // Prevent re-entrancy.
+    // Prevent re-entrance.
+    // 阻止重复进入
     isFlushingSyncQueue = true;
     let i = 0;
     try {
@@ -186,10 +188,12 @@ function flushSyncCallbackQueueImpl() {
       syncQueue = null;
     } catch (error) {
       // If something throws, leave the remaining callbacks on the queue.
+      // 如果有东西抛出，将剩下的回调留在队列中。
       if (syncQueue !== null) {
         syncQueue = syncQueue.slice(i + 1);
       }
       // Resume flushing in the next tick
+      // 在下一个标记中继续刷新
       Scheduler_scheduleCallback(
         Scheduler_ImmediatePriority,
         flushSyncCallbackQueue,

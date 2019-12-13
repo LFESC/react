@@ -211,6 +211,9 @@ export function reconcileChildren(
 
     // If we had any progressed work already, that is invalid at this point so
     // let's throw it out.
+    // 如果当前的孩子与正在进行的工作相同，这意味着我们还没有开始对这些孩子进行任何工作。
+    // 因此，我们使用clone算法创建所有当前子节点的副本。
+    // 如果我们已经有任何进展的工作，这是无效的在这一点上，让我们扔掉它。
     workInProgress.child = reconcileChildFibers(
       workInProgress,
       current.child,

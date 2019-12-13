@@ -13,10 +13,10 @@ import {
   REACT_SUSPENSE_TYPE,
 } from 'shared/ReactSymbols';
 
-import {Component, PureComponent} from './ReactBaseClasses';
-import {createEventComponent} from './ReactCreateEventComponent';
-import {createRef} from './ReactCreateRef';
-import {forEach, map, count, toArray, only} from './ReactChildren';
+import { Component, PureComponent } from './ReactBaseClasses';
+import { createEventComponent } from './ReactCreateEventComponent';
+import { createRef } from './ReactCreateRef';
+import { forEach, map, count, toArray, only } from './ReactChildren';
 import {
   createElement,
   createFactory,
@@ -24,8 +24,8 @@ import {
   isValidElement,
   jsx,
 } from './ReactElement';
-import {createContext} from './ReactContext';
-import {lazy} from './ReactLazy';
+import { createContext } from './ReactContext';
+import { lazy } from './ReactLazy';
 import forwardRef from './forwardRef';
 import memo from './memo';
 import {
@@ -40,7 +40,7 @@ import {
   useRef,
   useState,
 } from './ReactHooks';
-import {withSuspenseConfig} from './ReactBatchConfig';
+import { withSuspenseConfig } from './ReactBatchConfig';
 import {
   createElementWithValidation,
   createFactoryWithValidation,
@@ -50,8 +50,8 @@ import {
   jsxWithValidationDynamic,
 } from './ReactElementValidator';
 import ReactSharedInternals from './ReactSharedInternals';
-import {error, warn} from './withComponentStack';
-import {enableEventAPI, enableJSXTransformAPI} from 'shared/ReactFeatureFlags';
+import { error, warn } from './withComponentStack';
+import { enableEventAPI, enableJSXTransformAPI } from 'shared/ReactFeatureFlags';
 const React = {
   Children: {
     map,

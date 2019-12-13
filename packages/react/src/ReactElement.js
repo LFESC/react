@@ -7,7 +7,7 @@
 
 import invariant from 'shared/invariant';
 import warningWithoutStack from 'shared/warningWithoutStack';
-import {REACT_ELEMENT_TYPE} from 'shared/ReactSymbols';
+import { REACT_ELEMENT_TYPE } from 'shared/ReactSymbols';
 
 import ReactCurrentOwner from './ReactCurrentOwner';
 
@@ -47,15 +47,15 @@ function hasValidKey(config) {
 }
 
 function defineKeyPropWarningGetter(props, displayName) {
-  const warnAboutAccessingKey = function() {
+  const warnAboutAccessingKey = function () {
     if (!specialPropKeyWarningShown) {
       specialPropKeyWarningShown = true;
       warningWithoutStack(
         false,
         '%s: `key` is not a prop. Trying to access it will result ' +
-          'in `undefined` being returned. If you need to access the same ' +
-          'value within the child component, you should pass it as a different ' +
-          'prop. (https://fb.me/react-special-props)',
+        'in `undefined` being returned. If you need to access the same ' +
+        'value within the child component, you should pass it as a different ' +
+        'prop. (https://fb.me/react-special-props)',
         displayName,
       );
     }
@@ -68,15 +68,15 @@ function defineKeyPropWarningGetter(props, displayName) {
 }
 
 function defineRefPropWarningGetter(props, displayName) {
-  const warnAboutAccessingRef = function() {
+  const warnAboutAccessingRef = function () {
     if (!specialPropRefWarningShown) {
       specialPropRefWarningShown = true;
       warningWithoutStack(
         false,
         '%s: `ref` is not a prop. Trying to access it will result ' +
-          'in `undefined` being returned. If you need to access the same ' +
-          'value within the child component, you should pass it as a different ' +
-          'prop. (https://fb.me/react-special-props)',
+        'in `undefined` being returned. If you need to access the same ' +
+        'value within the child component, you should pass it as a different ' +
+        'prop. (https://fb.me/react-special-props)',
         displayName,
       );
     }
@@ -108,7 +108,7 @@ function defineRefPropWarningGetter(props, displayName) {
  * indicating filename, line number, and/or other information.
  * @internal
  */
-const ReactElement = function(type, key, ref, self, source, owner, props) {
+const ReactElement = function (type, key, ref, self, source, owner, props) {
   const element = {
     // This tag allows us to uniquely identify this as a React Element
     $$typeof: REACT_ELEMENT_TYPE,
@@ -305,6 +305,7 @@ export function createElement(type, config, children) {
   let propName;
 
   // Reserved names are extracted
+  // 提取保留名
   const props = {};
 
   let key = null;

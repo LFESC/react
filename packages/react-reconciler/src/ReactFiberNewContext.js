@@ -7,10 +7,10 @@
  * @flow
  */
 
-import type {ReactContext} from 'shared/ReactTypes';
-import type {Fiber} from './ReactFiber';
-import type {StackCursor} from './ReactFiberStack';
-import type {ExpirationTime} from './ReactFiberExpirationTime';
+import type { ReactContext } from 'shared/ReactTypes';
+import type { Fiber } from './ReactFiber';
+import type { StackCursor } from './ReactFiberStack';
+import type { ExpirationTime } from './ReactFiberExpirationTime';
 
 export type ContextDependencyList = {
   first: ContextDependency<mixed>,
@@ -24,8 +24,8 @@ type ContextDependency<T> = {
 };
 
 import warningWithoutStack from 'shared/warningWithoutStack';
-import {isPrimaryRenderer} from './ReactFiberHostConfig';
-import {createCursor, push, pop} from './ReactFiberStack';
+import { isPrimaryRenderer } from './ReactFiberHostConfig';
+import { createCursor, push, pop } from './ReactFiberStack';
 import MAX_SIGNED_31_BIT_INT from './maxSigned31BitInt';
 import {
   ContextProvider,
@@ -41,9 +41,9 @@ import {
   enqueueUpdate,
   ForceUpdate,
 } from 'react-reconciler/src/ReactUpdateQueue';
-import {NoWork} from './ReactFiberExpirationTime';
-import {markWorkInProgressReceivedUpdate} from './ReactFiberBeginWork';
-import {enableSuspenseServerRenderer} from 'shared/ReactFeatureFlags';
+import { NoWork } from './ReactFiberExpirationTime';
+import { markWorkInProgressReceivedUpdate } from './ReactFiberBeginWork';
+import { enableSuspenseServerRenderer } from 'shared/ReactFeatureFlags';
 
 const valueCursor: StackCursor<mixed> = createCursor(null);
 
@@ -62,6 +62,7 @@ let isDisallowedContextReadInDEV: boolean = false;
 export function resetContextDependencies(): void {
   // This is called right before React yields execution, to ensure `readContext`
   // cannot be called outside the render phase.
+  // 这是在React生成执行之前调用的，以确保“readContext”不能在呈现阶段之外调用。
   currentlyRenderingFiber = null;
   lastContextDependency = null;
   lastContextWithAllBitsObserved = null;
@@ -92,10 +93,10 @@ export function pushProvider<T>(providerFiber: Fiber, nextValue: T): void {
     if (__DEV__) {
       warningWithoutStack(
         context._currentRenderer === undefined ||
-          context._currentRenderer === null ||
-          context._currentRenderer === rendererSigil,
+        context._currentRenderer === null ||
+        context._currentRenderer === rendererSigil,
         'Detected multiple renderers concurrently rendering the ' +
-          'same context provider. This is currently unsupported.',
+        'same context provider. This is currently unsupported.',
       );
       context._currentRenderer = rendererSigil;
     }
@@ -106,10 +107,10 @@ export function pushProvider<T>(providerFiber: Fiber, nextValue: T): void {
     if (__DEV__) {
       warningWithoutStack(
         context._currentRenderer2 === undefined ||
-          context._currentRenderer2 === null ||
-          context._currentRenderer2 === rendererSigil,
+        context._currentRenderer2 === null ||
+        context._currentRenderer2 === rendererSigil,
         'Detected multiple renderers concurrently rendering the ' +
-          'same context provider. This is currently unsupported.',
+        'same context provider. This is currently unsupported.',
       );
       context._currentRenderer2 = rendererSigil;
     }
@@ -147,7 +148,7 @@ export function calculateChangedBits<T>(
       warning(
         (changedBits & MAX_SIGNED_31_BIT_INT) === changedBits,
         'calculateChangedBits: Expected the return value to be a ' +
-          '31-bit integer. Instead received: %s',
+        '31-bit integer. Instead received: %s',
         changedBits,
       );
     }
@@ -338,9 +339,9 @@ export function readContext<T>(
     warning(
       !isDisallowedContextReadInDEV,
       'Context can only be read while React is rendering. ' +
-        'In classes, you can read it in the render method or getDerivedStateFromProps. ' +
-        'In function components, you can read it directly in the function body, but not ' +
-        'inside Hooks like useReducer() or useMemo().',
+      'In classes, you can read it in the render method or getDerivedStateFromProps. ' +
+      'In function components, you can read it directly in the function body, but not ' +
+      'inside Hooks like useReducer() or useMemo().',
     );
   }
 
@@ -371,9 +372,9 @@ export function readContext<T>(
       invariant(
         currentlyRenderingFiber !== null,
         'Context can only be read while React is rendering. ' +
-          'In classes, you can read it in the render method or getDerivedStateFromProps. ' +
-          'In function components, you can read it directly in the function body, but not ' +
-          'inside Hooks like useReducer() or useMemo().',
+        'In classes, you can read it in the render method or getDerivedStateFromProps. ' +
+        'In function components, you can read it directly in the function body, but not ' +
+        'inside Hooks like useReducer() or useMemo().',
       );
 
       // This is the first dependency for this component. Create a new list.

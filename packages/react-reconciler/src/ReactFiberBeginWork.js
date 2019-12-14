@@ -237,6 +237,11 @@ function forceUnmountCurrentAndReconcile(
   // To do this, we're going to go through the reconcile algorithm twice. In
   // the first pass, we schedule a deletion for all the current children by
   // passing null.
+  // 这个功能是 reconcileChildren 的 fork。
+  // 它用于我们想要在不匹配现有集合的情况下进行调和的情况。
+  // 即使类型和键是相同的，也会卸载旧的子进程并创建新的子进程。
+  // 为此，我们将遍历两次reconciliation算法。
+  // 在第一个循环中，我们通过传递null来为所有当前的子进程调度一个删除。
   workInProgress.child = reconcileChildFibers(
     workInProgress,
     current.child,
@@ -247,6 +252,8 @@ function forceUnmountCurrentAndReconcile(
   // pass null in place of where we usually pass the current child set. This has
   // the effect of remounting all children regardless of whether their their
   // identity matches.
+  // 在第二关，我们安装新的子节点。
+  // 这里的技巧是，我们在通常传递当前子集合的地方传递null。这将重新加载所有子集合，不管它们的标识是否匹配。
   workInProgress.child = reconcileChildFibers(
     workInProgress,
     null,
@@ -696,6 +703,9 @@ function updateClassComponent(
   // Push context providers early to prevent context stack mismatches.
   // During mounting we don't know the child context yet as the instance doesn't exist.
   // We will invalidate the child context in finishClassComponent() right after rendering.
+  // 尽早推送 context 提供程序，以防止 context 堆栈不匹配。
+  // 在挂载过程中，我们还不知道子 context，因为实例不存在。
+  // 我们将在呈现后立即使finishClassComponent()中的子上下文失效。
   let hasContext;
   if (isLegacyContextProvider(Component)) {
     hasContext = true;
@@ -713,12 +723,17 @@ function updateClassComponent(
       // inside a non- concurrent tree, in an inconsistent state. We want to
       // tree it like a new mount, even though an empty version of it already
       // committed. Disconnect the alternate pointers.
+      // 没有实例的类组件只有在挂起在 non- concurrent tree 时才会以不一致的状态挂起。
+      // 我们想要像一个新的挂载一样对它进行树化，即使它已经提交了一个空版本。
+      // 断开备用指针。
       current.alternate = null;
       workInProgress.alternate = null;
       // Since this is conceptually a new fiber, schedule a Placement effect
+      // 由于这在概念上是一种新 fiber，所以安排一个 placement effect
       workInProgress.effectTag |= Placement;
     }
     // In the initial pass we might need to construct the instance.
+    // 在初始阶段，我们可能需要构造实例。
     constructClassInstance(
       workInProgress,
       Component,
@@ -734,6 +749,7 @@ function updateClassComponent(
     shouldUpdate = true;
   } else if (current === null) {
     // In a resume, we'll already have an instance we can reuse.
+    // 在中断后，我们已经有了一个可以重用的实例。
     shouldUpdate = resumeMountClassInstance(
       workInProgress,
       Component,
@@ -781,12 +797,14 @@ function finishClassComponent(
   renderExpirationTime: ExpirationTime,
 ) {
   // Refs should update even if shouldComponentUpdate returns false
+  // 即使shouldComponentUpdate返回false, Refs也应该更新
   markRef(current, workInProgress);
 
   const didCaptureError = (workInProgress.effectTag & DidCapture) !== NoEffect;
 
   if (!shouldUpdate && !didCaptureError) {
     // Context providers should defer to sCU for rendering
+    //  Context providers 应该遵从sCU进行渲染
     if (hasContext) {
       invalidateContextProvider(workInProgress, Component, false);
     }
@@ -811,6 +829,9 @@ function finishClassComponent(
     // unmount all the children. componentDidCatch will schedule an update to
     // re-render a fallback. This is temporary until we migrate everyone to
     // the new API.
+    // 如果我们捕获了一个错误，但是getderivedstatefromcatch没有定义，卸载所有的子进程。
+    // componentDidCatch将调度更新以重新呈现回退。
+    // 这是暂时的，直到我们把每个人都迁移到新的API。
     // TODO: Warn in a future release.
     nextChildren = null;
 
@@ -841,6 +862,8 @@ function finishClassComponent(
     // the existing children. Conceptually, the normal children and the children
     // that are shown on error are two different sets, so we shouldn't reuse
     // normal children even if their identities match.
+    // 如果我们正在从错误中恢复，那么在不重用任何现有的子元素的情况下进行重新协调。
+    // 从概念上讲，正常的子节点和显示在错误上的子节点是两个不同的集合，所以即使它们的标识匹配，我们也不应该重用正常的子节点。
     forceUnmountCurrentAndReconcile(
       current,
       workInProgress,
@@ -2261,12 +2284,17 @@ function beginWork(
     ) {
       // If props or context changed, mark the fiber as having performed work.
       // This may be unset if the props are determined to be equal later (memo).
+      // 如果 props 或 context 发生了变化，将 fiber 标记为完成了工作。
+      // 这可能是取消设置，如果 props 确定是平等的(备忘录)。
       didReceiveUpdate = true;
     } else if (updateExpirationTime < renderExpirationTime) {
       didReceiveUpdate = false;
       // This fiber does not have any pending work. Bailout without entering
       // the begin phase. There's still some bookkeeping we that needs to be done
       // in this optimized path, mostly pushing stuff onto the stack.
+      // 该 fiber 没有任何未完成的工作。
+      // 跳出不用进入开始阶段。
+      // 在这个优化的路径中，我们仍然需要做一些簿记工作，主要是把东西放到堆栈上。
       switch (workInProgress.tag) {
         case HostRoot:
           pushHostRootContext(workInProgress);

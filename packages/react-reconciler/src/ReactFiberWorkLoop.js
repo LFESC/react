@@ -210,6 +210,8 @@ let workInProgressRootExitStatus: RootExitStatus = RootIncomplete;
 // This is conceptually a time stamp but expressed in terms of an ExpirationTime
 // because we deal mostly with expiration times in the hot path, so this avoids
 // the conversion happening in the hot path.
+// 在此渲染期间处理更新之间的最新事件时间。
+// 这在概念上是一个时间戳，但表示为到期时间，因为我们主要处理热路径中的到期时间，所以这避免了在热路径中发生转换。
 let workInProgressRootLatestProcessedExpirationTime: ExpirationTime = Sync;
 let workInProgressRootLatestSuspenseTimeout: ExpirationTime = Sync;
 let workInProgressRootCanSuspendUsingConfig: null | SuspenseConfig = null;
@@ -755,6 +757,8 @@ function prepareFreshStack(root, expirationTime) {
   if (timeoutHandle !== noTimeout) {
     // The root previous suspended and scheduled a timeout to commit a fallback
     // state. Now that we have additional work, cancel the timeout.
+    // 根之前挂起并调度超时以提交回退状态。
+    // 现在我们有了额外的工作，取消超时。
     root.timeoutHandle = noTimeout;
     // $FlowFixMe Complains noTimeout is not a TimeoutID, despite the check above
     cancelTimeout(timeoutHandle);
@@ -807,6 +811,7 @@ function renderRoot(
 
   if (root.finishedExpirationTime === expirationTime) {
     // There's already a pending commit at this expiration time.
+    // 在这个过期时间已经有一个挂起的提交。
     return commitRoot.bind(null, root);
   }
 
@@ -832,6 +837,8 @@ function renderRoot(
       // The React isomorphic package does not include a default dispatcher.
       // Instead the first renderer will lazily attach one, in order to give
       // nicer error messages.
+      // React同构包不包含默认的dispatcher。
+      // 相反，第一个渲染器将惰性地附加一个，以提供更好的错误消息。
       prevDispatcher = ContextOnlyDispatcher;
     }
     ReactCurrentDispatcher.current = ContextOnlyDispatcher;
@@ -849,6 +856,9 @@ function renderRoot(
         // An async update expired. There may be other expired updates on
         // this root. We should render all the expired work in a
         // single batch.
+        // 异步更新过期。
+        // 这个根目录上可能还有其他过期的更新。
+        // 我们应该把所有过期的工作放在一个批处理中。
         const currentTime = requestCurrentTime();
         if (currentTime < expirationTime) {
           // Restart at the current time.
@@ -866,6 +876,8 @@ function renderRoot(
     } else {
       // Since we know we're in a React event, we can clear the current
       // event time. The next update will compute a new event time.
+      // 既然我们知道我们在一个React事件中，我们可以清除当前事件时间。
+      // 下一次更新将计算一个新的事件时间。
       currentEventTime = NoWork;
     }
 
@@ -1105,6 +1117,7 @@ function inferTimeFromExpirationTime(
 
 function workLoopSync() {
   // Already timed out, so perform work without checking if we need to yield.
+  // 已经超时了，所以执行工作时不要检查是否需要让步。
   while (workInProgress !== null) {
     workInProgress = performUnitOfWork(workInProgress);
   }
@@ -1112,6 +1125,7 @@ function workLoopSync() {
 
 function workLoop() {
   // Perform work until Scheduler asks us to yield
+  // 执行工作，直到调度器要求我们让步
   while (workInProgress !== null && !shouldYield()) {
     workInProgress = performUnitOfWork(workInProgress);
   }
@@ -1121,6 +1135,8 @@ function performUnitOfWork(unitOfWork: Fiber): Fiber | null {
   // The current, flushed, state of this fiber is the alternate. Ideally
   // nothing should rely on this, but relying on it here means that we don't
   // need an additional field on the work in progress.
+  // 该 fiber 的当前冲刷状态是交替的。
+  // 理想情况下不应该依赖于此，但是依赖于此意味着我们不需要对正在进行的工作进行额外的研究。
   const current = unitOfWork.alternate;
 
   startWorkTimer(unitOfWork);
@@ -1139,6 +1155,7 @@ function performUnitOfWork(unitOfWork: Fiber): Fiber | null {
   unitOfWork.memoizedProps = unitOfWork.pendingProps;
   if (next === null) {
     // If this doesn't spawn new work, complete the current work.
+    // 如果这没有产生新的工作，完成当前的工作。
     next = completeUnitOfWork(unitOfWork);
   }
 

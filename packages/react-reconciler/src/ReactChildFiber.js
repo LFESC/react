@@ -540,6 +540,7 @@ function ChildReconciler(shouldTrackSideEffects) {
     expirationTime: ExpirationTime,
   ): Fiber | null {
     // Update the fiber if the keys match, otherwise return null.
+    // 如果键值匹配，则更新 fiber，否则返回null。
 
     const key = oldFiber !== null ? oldFiber.key : null;
 
@@ -848,6 +849,7 @@ function ChildReconciler(shouldTrackSideEffects) {
 
     if (newIdx === newChildren.length) {
       // We've reached the end of the new children. We can delete the rest.
+      // 我们已经到了新孩子们的尽头。我们可以删除其余的。
       deleteRemainingChildren(returnFiber, oldFiber);
       return resultingFirstChild;
     }
@@ -855,6 +857,7 @@ function ChildReconciler(shouldTrackSideEffects) {
     if (oldFiber === null) {
       // If we don't have any more existing children we can choose a fast path
       // since the rest will all be insertions.
+      // 如果我们没有任何现有的孩子，我们可以选择一个快速的路径，因为其余的都是插入。
       for (; newIdx < newChildren.length; newIdx++) {
         const newFiber = createChild(
           returnFiber,
@@ -877,9 +880,11 @@ function ChildReconciler(shouldTrackSideEffects) {
     }
 
     // Add all children to a key map for quick lookups.
+    // 将所有子元素添加到键映射中，以便快速查找。
     const existingChildren = mapRemainingChildren(returnFiber, oldFiber);
 
     // Keep scanning and use the map to restore deleted items as moves.
+    // 继续扫描，并使用地图恢复删除的项目作为移动。
     for (; newIdx < newChildren.length; newIdx++) {
       const newFiber = updateFromMap(
         existingChildren,
@@ -895,6 +900,8 @@ function ChildReconciler(shouldTrackSideEffects) {
             // current, that means that we reused the fiber. We need to delete
             // it from the child list so that we don't add it to the deletion
             // list.
+            // 新 fiber 是一个 work in progress，但如果有 current，就意味着我们要重新利用这种 fiber。
+            // 我们需要从子列表中删除它，这样我们就不会将它添加到删除列表中。
             existingChildren.delete(
               newFiber.key === null ? newIdx : newFiber.key,
             );
@@ -1116,9 +1123,11 @@ function ChildReconciler(shouldTrackSideEffects) {
   ): Fiber {
     // There's no need to check for keys on text nodes since we don't have a
     // way to define them.
+    // 不需要检查文本节点上的键值，因为我们无法定义它们。
     if (currentFirstChild !== null && currentFirstChild.tag === HostText) {
       // We already have an existing node so let's just update it and delete
       // the rest.
+      // 我们已经有了一个节点，所以我们只需要更新它并删除其余的节点。
       deleteRemainingChildren(returnFiber, currentFirstChild.sibling);
       const existing = useFiber(currentFirstChild, textContent, expirationTime);
       existing.return = returnFiber;
@@ -1126,6 +1135,7 @@ function ChildReconciler(shouldTrackSideEffects) {
     }
     // The existing first child is not a text node so we need to create one
     // and delete the existing ones.
+    // 现有的第一个子节点不是文本节点，所以我们需要创建一个并删除现有的。
     deleteRemainingChildren(returnFiber, currentFirstChild);
     const created = createFiberFromText(
       textContent,
@@ -1350,6 +1360,8 @@ function ChildReconciler(shouldTrackSideEffects) {
       // If the new child is undefined, and the return fiber is a composite
       // component, throw an error. If Fiber return types are disabled,
       // we already threw above.
+      // 如果新的子组件没有定义，而返回的 fiber 是一个复合组件，则抛出一个错误。
+      // 如果禁用了 fiber 返回类型，我们已经在上面抛出了。
       switch (returnFiber.tag) {
         case ClassComponent: {
           if (__DEV__) {

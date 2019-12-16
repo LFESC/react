@@ -928,10 +928,12 @@ function updateHostRoot(current, workInProgress, renderExpirationTime) {
   const nextState = workInProgress.memoizedState;
   // Caution: React DevTools currently depends on this property
   // being called "element".
+  // 注意:React DevTools目前依赖于被称为“element”的属性。
   const nextChildren = nextState.element;
   if (nextChildren === prevChildren) {
     // If the state is the same as before, that's a bailout because we had
     // no work that expires at this time.
+    // 如果这个 state 还是和以前一样，那就跳出，因为我们现在没有到期的工作。
     resetHydrationState();
     return bailoutOnAlreadyFinishedWork(
       current,
@@ -954,11 +956,21 @@ function updateHostRoot(current, workInProgress, renderExpirationTime) {
     // know that we're currently in a mounting state. That way isMounted
     // works as expected. We must reset this before committing.
     // TODO: Delete this when we delete isMounted and findDOMNode.
+    // 如果我们现在没有 children，这可能是第一次渲染。
+    // 我们总是尽量 hydrate。
+    // 如果这不是一个 hydrate，就不会有任何 children 被 hydrate，这实际上等同于不 hydrate。
+    // 这有点 hack。
+    // 我们跟踪 host root 作为一个 placement 以确定当前是否处于挂载状态。
+    // 这种方式安装工作如预期。
+    // 我们必须在提交之前重置它。
+    // TODO:在删除ismount和findDOMNode时删除它。
     workInProgress.effectTag |= Placement;
 
     // Ensure that children mount into this root without tracking
     // side-effects. This ensures that we don't store Placement effects on
     // nodes that will be hydrated.
+    // 确保 children 挂载到这个根节点没有跟踪副作用。
+    // 这确保我们不会将放置效果存储在将被 hydrated 的节点上。
     workInProgress.child = mountChildFibers(
       workInProgress,
       null,
@@ -968,6 +980,7 @@ function updateHostRoot(current, workInProgress, renderExpirationTime) {
   } else {
     // Otherwise reset hydration state in case we aborted and resumed another
     // root.
+    // 否则重置 hydration 状态，以防我们中止并恢复另一个根。
     reconcileChildren(
       current,
       workInProgress,
@@ -1041,6 +1054,7 @@ function updateHostText(current, workInProgress) {
   }
   // Nothing to do here. This is terminal. We'll do the completion step
   // immediately after.
+  //没什么事可做。这是终端。我们将立即完成步骤。
   return null;
 }
 
@@ -1235,9 +1249,13 @@ function mountIndeterminateComponent(
     // concurrent tree, in an inconsistent state. We want to treat it like
     // a new mount, even though an empty version of it already committed.
     // Disconnect the alternate pointers.
+    // 一个不确定的组件只有在非并发树中挂起时才会以不一致的状态挂起。
+    // 我们希望将它视为一个新的挂载，即使它已经提交了一个空版本。
+    // 断开备用指针。
     _current.alternate = null;
     workInProgress.alternate = null;
     // Since this is conceptually a new fiber, schedule a Placement effect
+    // 由于这在概念上是一种新 fiber，所以安排一个放置效果
     workInProgress.effectTag |= Placement;
   }
 
@@ -1319,14 +1337,19 @@ function mountIndeterminateComponent(
     }
 
     // Proceed under the assumption that this is a class instance
+    // 假设这是一个类实例
     workInProgress.tag = ClassComponent;
 
     // Throw out any hooks that were used.
+    // 扔掉所有用过的 hooks。
     resetHooks();
 
     // Push context providers early to prevent context stack mismatches.
     // During mounting we don't know the child context yet as the instance doesn't exist.
     // We will invalidate the child context in finishClassComponent() right after rendering.
+    // 尽早推送 context providers，以防止 context 堆栈不匹配。
+    // 在挂载过程中，我们还不知道 child context，因为实例不存在。
+    // 我们将在呈现后立即使finishClassComponent()中的 child context 失效。
     let hasContext = false;
     if (isLegacyContextProvider(Component)) {
       hasContext = true;
@@ -1360,6 +1383,7 @@ function mountIndeterminateComponent(
     );
   } else {
     // Proceed under the assumption that this is a function component
+    // 假设这是一个函数组件
     workInProgress.tag = FunctionComponent;
     if (__DEV__) {
       if (

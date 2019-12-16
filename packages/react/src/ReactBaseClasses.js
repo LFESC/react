@@ -55,13 +55,13 @@ Component.prototype.isReactComponent = {};
  * @final
  * @protected
  */
-Component.prototype.setState = function(partialState, callback) {
+Component.prototype.setState = function (partialState, callback) {
   invariant(
     typeof partialState === 'object' ||
-      typeof partialState === 'function' ||
-      partialState == null,
+    typeof partialState === 'function' ||
+    partialState == null,
     'setState(...): takes an object of state variables to update or a ' +
-      'function which returns an object of state variables.',
+    'function which returns an object of state variables.',
   );
   this.updater.enqueueSetState(this, partialState, callback, 'setState');
 };
@@ -80,7 +80,7 @@ Component.prototype.setState = function(partialState, callback) {
  * @final
  * @protected
  */
-Component.prototype.forceUpdate = function(callback) {
+Component.prototype.forceUpdate = function (callback) {
   this.updater.enqueueForceUpdate(this, callback, 'forceUpdate');
 };
 
@@ -94,17 +94,17 @@ if (__DEV__) {
     isMounted: [
       'isMounted',
       'Instead, make sure to clean up subscriptions and pending requests in ' +
-        'componentWillUnmount to prevent memory leaks.',
+      'componentWillUnmount to prevent memory leaks.',
     ],
     replaceState: [
       'replaceState',
       'Refactor your code to use setState instead (see ' +
-        'https://github.com/facebook/react/issues/3236).',
+      'https://github.com/facebook/react/issues/3236).',
     ],
   };
-  const defineDeprecationWarning = function(methodName, info) {
+  const defineDeprecationWarning = function (methodName, info) {
     Object.defineProperty(Component.prototype, methodName, {
-      get: function() {
+      get: function () {
         lowPriorityWarning(
           false,
           '%s(...) is deprecated in plain JavaScript React classes. %s',
@@ -122,7 +122,7 @@ if (__DEV__) {
   }
 }
 
-function ComponentDummy() {}
+function ComponentDummy() { }
 ComponentDummy.prototype = Component.prototype;
 
 /**
@@ -142,4 +142,4 @@ pureComponentPrototype.constructor = PureComponent;
 Object.assign(pureComponentPrototype, Component.prototype);
 pureComponentPrototype.isPureReactComponent = true;
 
-export {Component, PureComponent};
+export { Component, PureComponent };

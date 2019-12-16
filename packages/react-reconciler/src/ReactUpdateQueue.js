@@ -84,25 +84,25 @@
 // regardless of priority. Intermediate state may vary according to system
 // resources, but the final state is always the same.
 
-import type {Fiber} from './ReactFiber';
-import type {ExpirationTime} from './ReactFiberExpirationTime';
-import type {SuspenseConfig} from './ReactFiberSuspenseConfig';
+import type { Fiber } from './ReactFiber';
+import type { ExpirationTime } from './ReactFiberExpirationTime';
+import type { SuspenseConfig } from './ReactFiberSuspenseConfig';
 
-import {NoWork} from './ReactFiberExpirationTime';
+import { NoWork } from './ReactFiberExpirationTime';
 import {
   enterDisallowedContextReadInDEV,
   exitDisallowedContextReadInDEV,
 } from './ReactFiberNewContext';
-import {Callback, ShouldCapture, DidCapture} from 'shared/ReactSideEffectTags';
-import {ClassComponent} from 'shared/ReactWorkTags';
+import { Callback, ShouldCapture, DidCapture } from 'shared/ReactSideEffectTags';
+import { ClassComponent } from 'shared/ReactWorkTags';
 
 import {
   debugRenderPhaseSideEffects,
   debugRenderPhaseSideEffectsForStrictMode,
 } from 'shared/ReactFeatureFlags';
 
-import {StrictMode} from './ReactTypeOfMode';
-import {markRenderEventTimeAndConfig} from './ReactFiberWorkLoop';
+import { StrictMode } from './ReactTypeOfMode';
+import { markRenderEventTimeAndConfig } from './ReactFiberWorkLoop';
 
 import invariant from 'shared/invariant';
 import warningWithoutStack from 'shared/warningWithoutStack';
@@ -290,9 +290,9 @@ export function enqueueUpdate<State>(fiber: Fiber, update: Update<State>) {
       warningWithoutStack(
         false,
         'An update (setState, replaceState, or forceUpdate) was scheduled ' +
-          'from inside an update function. Update functions should be pure, ' +
-          'with zero side-effects. Consider using componentDidUpdate or a ' +
-          'callback.',
+        'from inside an update function. Update functions should be pure, ' +
+        'with zero side-effects. Consider using componentDidUpdate or a ' +
+        'callback.',
       );
       didWarnUpdateInsideUpdate = true;
     }
@@ -382,6 +382,7 @@ function getStateFromUpdate<State>(
         (workInProgress.effectTag & ~ShouldCapture) | DidCapture;
     }
     // Intentional fallthrough
+    // 故意 fallthrough
     case UpdateState: {
       const payload = update.payload;
       let partialState;
@@ -407,9 +408,11 @@ function getStateFromUpdate<State>(
       }
       if (partialState === null || partialState === undefined) {
         // Null and undefined are treated as no-ops.
+        // Null和undefined被视为没有操作。
         return prevState;
       }
       // Merge the partial state and the previous state.
+      // 合并部分状态和前一个状态。
       return Object.assign({}, prevState, partialState);
     }
     case ForceUpdate: {
@@ -436,32 +439,40 @@ export function processUpdateQueue<State>(
   }
 
   // These values may change as we process the queue.
+  // 当我们处理队列时，这些值可能会改变。
   let newBaseState = queue.baseState;
   let newFirstUpdate = null;
   let newExpirationTime = NoWork;
 
   // Iterate through the list of updates to compute the result.
+  // 迭代更新列表以计算结果。
   let update = queue.firstUpdate;
   let resultState = newBaseState;
   while (update !== null) {
     const updateExpirationTime = update.expirationTime;
     if (updateExpirationTime < renderExpirationTime) {
       // This update does not have sufficient priority. Skip it.
+      // 这个更新没有足够的优先级。跳过它。
       if (newFirstUpdate === null) {
         // This is the first skipped update. It will be the first update in
         // the new list.
+        // 这是第一次跳过的更新。
+        // 这将是新列表中的第一个更新。
         newFirstUpdate = update;
         // Since this is the first update that was skipped, the current result
         // is the new base state.
+        // 由于这是跳过的第一个更新，所以当前结果是新的基本状态。
         newBaseState = resultState;
       }
       // Since this update will remain in the list, update the remaining
       // expiration time.
+      // 由于此更新将保留在列表中，所以更新剩余的过期时间。
       if (newExpirationTime < updateExpirationTime) {
         newExpirationTime = updateExpirationTime;
       }
     } else {
       // This update does have sufficient priority.
+      // 这个更新有足够的优先级。
 
       // Mark the event time of this update as relevant to this render pass.
       // TODO: This should ideally use the true event time of this update rather than
@@ -469,9 +480,13 @@ export function processUpdateQueue<State>(
       // TODO: We should skip this update if it was already committed but currently
       // we have no way of detecting the difference between a committed and suspended
       // update here.
+      // 将此更新的事件时间标记为与此渲染通道相关的时间。
+      // TODO:理想情况下应该使用这个更新的真实事件时间，而不是它的优先级，它是一个派生的、不可逆转的值。
+      // TODO:我们应该跳过这个更新，如果它已经提交，但目前我们没有办法检测之间的差异提交和暂停更新这里。
       markRenderEventTimeAndConfig(updateExpirationTime, update.suspenseConfig);
 
       // Process it and compute a new result.
+      // 处理它并计算一个新的结果。
       resultState = getStateFromUpdate(
         workInProgress,
         queue,
@@ -484,6 +499,7 @@ export function processUpdateQueue<State>(
       if (callback !== null) {
         workInProgress.effectTag |= Callback;
         // Set this to null, in case it was mutated during an aborted render.
+        // 将其设置为null，以防在渲染失败期间发生变化。
         update.nextEffect = null;
         if (queue.lastEffect === null) {
           queue.firstEffect = queue.lastEffect = update;
@@ -494,34 +510,41 @@ export function processUpdateQueue<State>(
       }
     }
     // Continue to the next update.
+    // 继续下一次更新。
     update = update.next;
   }
 
   // Separately, iterate though the list of captured updates.
+  // 分别遍历捕获的更新列表。
   let newFirstCapturedUpdate = null;
   update = queue.firstCapturedUpdate;
   while (update !== null) {
     const updateExpirationTime = update.expirationTime;
     if (updateExpirationTime < renderExpirationTime) {
       // This update does not have sufficient priority. Skip it.
+      // 这个更新没有足够的优先级。跳过它。
       if (newFirstCapturedUpdate === null) {
         // This is the first skipped captured update. It will be the first
         // update in the new list.
+        // 这是第一次跳过捕获的更新。这将是新列表中的第一个更新。
         newFirstCapturedUpdate = update;
         // If this is the first update that was skipped, the current result is
         // the new base state.
+        // 如果这是跳过的第一个更新，则当前结果是新的基本状态。
         if (newFirstUpdate === null) {
           newBaseState = resultState;
         }
       }
       // Since this update will remain in the list, update the remaining
       // expiration time.
+      // 由于此更新将保留在列表中，所以更新剩余的过期时间。
       if (newExpirationTime < updateExpirationTime) {
         newExpirationTime = updateExpirationTime;
       }
     } else {
       // This update does have sufficient priority. Process it and compute
       // a new result.
+      // 这个更新有足够的优先级。处理它并计算一个新的结果。
       resultState = getStateFromUpdate(
         workInProgress,
         queue,
@@ -534,6 +557,7 @@ export function processUpdateQueue<State>(
       if (callback !== null) {
         workInProgress.effectTag |= Callback;
         // Set this to null, in case it was mutated during an aborted render.
+        // 将其设置为null，以防在渲染失败期间发生变化。
         update.nextEffect = null;
         if (queue.lastCapturedEffect === null) {
           queue.firstCapturedEffect = queue.lastCapturedEffect = update;
@@ -557,6 +581,7 @@ export function processUpdateQueue<State>(
   if (newFirstUpdate === null && newFirstCapturedUpdate === null) {
     // We processed every update, without skipping. That means the new base
     // state is the same as the result state.
+    // 我们处理每一个更新，没有跳过。这意味着新的基状态与结果状态相同。
     newBaseState = resultState;
   }
 
@@ -571,6 +596,11 @@ export function processUpdateQueue<State>(
   // dealt with the props. Context in components that specify
   // shouldComponentUpdate is tricky; but we'll have to account for
   // that regardless.
+  // 将剩余的过期时间设置为队列中剩余的时间。
+  // 这应该没有问题，因为导致过期时间的其他两个因素是 props 和 context。
+  // 当我们开始处理队列时，我们已经处于begin阶段的中间，所以我们已经处理了 props。
+  // 指定 shouldComponentUpdate 的组件中的 context 比较复杂;
+  // 但无论如何我们都要考虑到这一点。
   workInProgress.expirationTime = newExpirationTime;
   workInProgress.memoizedState = resultState;
 
@@ -583,7 +613,7 @@ function callCallback(callback, context) {
   invariant(
     typeof callback === 'function',
     'Invalid argument passed as callback. Expected a function. Instead ' +
-      'received: %s',
+    'received: %s',
     callback,
   );
   callback.call(context);

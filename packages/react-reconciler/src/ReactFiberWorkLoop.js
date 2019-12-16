@@ -933,6 +933,7 @@ function renderRoot(
 
     if (workInProgress !== null) {
       // There's still work left over. Return a continuation.
+      // 还有工作要做。返回一个延续。
       stopInterruptedWorkLoopTimer();
       if (expirationTime !== Sync) {
         startRequestCallbackTimer();
@@ -943,6 +944,8 @@ function renderRoot(
 
   // We now have a consistent tree. The next step is either to commit it, or, if
   // something suspended, wait to commit it after a timeout.
+  // 我们现在有了一个一致的树。
+  // 下一步是提交它，或者，如果某些东西挂起，在超时之后等待提交。
   stopFinishedWorkLoopTimer();
 
   root.finishedWork = root.current.alternate;
@@ -1166,15 +1169,20 @@ function performUnitOfWork(unitOfWork: Fiber): Fiber | null {
 function completeUnitOfWork(unitOfWork: Fiber): Fiber | null {
   // Attempt to complete the current unit of work, then move to the next
   // sibling. If there are no more siblings, return to the parent fiber.
+  // 尝试完成当前的工作单元，然后移动到下一个同级。
+  // 如果没有兄弟节点，就回到 parent fiber。
   workInProgress = unitOfWork;
   do {
     // The current, flushed, state of this fiber is the alternate. Ideally
     // nothing should rely on this, but relying on it here means that we don't
     // need an additional field on the work in progress.
+    // 该 fiber 的当前冲刷状态是交替的。
+    // 理想情况下不应该依赖于此，但是依赖于此意味着我们不需要对正在进行的工作进行额外的研究。
     const current = workInProgress.alternate;
     const returnFiber = workInProgress.return;
 
     // Check if the work completed or if something threw.
+    // 检查工作是否完成或是否有东西抛出。
     if ((workInProgress.effectTag & Incomplete) === NoEffect) {
       setCurrentDebugFiberInDEV(workInProgress);
       let next;
@@ -1195,6 +1203,7 @@ function completeUnitOfWork(unitOfWork: Fiber): Fiber | null {
 
       if (next !== null) {
         // Completing this fiber spawned new work. Work on that next.
+        // 完成这个 fiber 产生了新的工作。下一个工作。
         return next;
       }
 
@@ -1240,10 +1249,13 @@ function completeUnitOfWork(unitOfWork: Fiber): Fiber | null {
       // This fiber did not complete because something threw. Pop values off
       // the stack without entering the complete phase. If this is a boundary,
       // capture values if possible.
+      // 这个 fiber 没有完成是因为有东西抛出了。
+      // 在不进入完整阶段的情况下从堆栈中取出值。
+      // 如果这是一个边界，则尽可能捕获值。
       const next = unwindWork(workInProgress, renderExpirationTime);
 
       // Because this fiber did not complete, don't reset its expiration time.
-
+      // 因为这个 fiber 没有完成，所以不要重置它的过期时间。
       if (
         enableProfilerTimer &&
         (workInProgress.mode & ProfileMode) !== NoMode
@@ -1268,6 +1280,10 @@ function completeUnitOfWork(unitOfWork: Fiber): Fiber | null {
         // from the effect tag.
         // TODO: The name stopFailedWorkTimer is misleading because Suspense
         // also captures and restarts.
+        // 如果完成这项工作产生了新的工作，那么接下来就去做。
+        // 我们还会回到这里。
+        // 因为我们正在重新启动，所以从效果标签中删除所有不是 host effect 的内容。
+        // TODO: stopFailedWorkTimer这个名称具有误导性，因为悬念也会捕获和重新启动。
         stopFailedWorkTimer(workInProgress);
         next.effectTag &= HostEffectMask;
         return next;
@@ -1276,6 +1292,7 @@ function completeUnitOfWork(unitOfWork: Fiber): Fiber | null {
 
       if (returnFiber !== null) {
         // Mark the parent fiber as incomplete and clear its effect list.
+        // 将 parent fiber 标记为不完整，并清除其作用列表。
         returnFiber.firstEffect = returnFiber.lastEffect = null;
         returnFiber.effectTag |= Incomplete;
       }
@@ -1284,13 +1301,16 @@ function completeUnitOfWork(unitOfWork: Fiber): Fiber | null {
     const siblingFiber = workInProgress.sibling;
     if (siblingFiber !== null) {
       // If there is more work to do in this returnFiber, do that next.
+      // 如果在这方面还有更多的工作要做，那就接着做。
       return siblingFiber;
     }
     // Otherwise, return to the parent
+    // 否则，返回到父进程
     workInProgress = returnFiber;
   } while (workInProgress !== null);
 
   // We've reached the root.
+  // 我们已经到了根节点。
   if (workInProgressRootExitStatus === RootIncomplete) {
     workInProgressRootExitStatus = RootCompleted;
   }

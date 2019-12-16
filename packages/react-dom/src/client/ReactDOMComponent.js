@@ -8,13 +8,13 @@
  */
 
 // TODO: direct imports like some-package/src/* are bad. Fix me.
-import {getCurrentFiberOwnerNameInDevOrNull} from 'react-reconciler/src/ReactCurrentFiber';
-import {registrationNameModules} from 'events/EventPluginRegistry';
+import { getCurrentFiberOwnerNameInDevOrNull } from 'react-reconciler/src/ReactCurrentFiber';
+import { registrationNameModules } from 'events/EventPluginRegistry';
 import warning from 'shared/warning';
-import {canUseDOM} from 'shared/ExecutionEnvironment';
+import { canUseDOM } from 'shared/ExecutionEnvironment';
 import warningWithoutStack from 'shared/warningWithoutStack';
-import type {ReactEventResponderEventType} from 'shared/ReactTypes';
-import type {DOMTopLevelEventType} from 'events/TopLevelEventTypes';
+import type { ReactEventResponderEventType } from 'shared/ReactTypes';
+import type { DOMTopLevelEventType } from 'events/TopLevelEventTypes';
 import {
   setListenToResponderEventTypes,
   generateListeningKey,
@@ -52,7 +52,7 @@ import {
   updateWrapper as ReactDOMTextareaUpdateWrapper,
   restoreControlledState as ReactDOMTextareaRestoreControlledState,
 } from './ReactDOMTextarea';
-import {track} from './inputValueTracking';
+import { track } from './inputValueTracking';
 import setInnerHTML from './setInnerHTML';
 import setTextContent from './setTextContent';
 import {
@@ -68,28 +68,28 @@ import {
   trapBubbledEvent,
   getListeningSetForElement,
 } from '../events/ReactBrowserEventEmitter';
-import {trapEventForResponderEventSystem} from '../events/ReactDOMEventListener.js';
-import {mediaEventTypes} from '../events/DOMTopLevelEventTypes';
+import { trapEventForResponderEventSystem } from '../events/ReactDOMEventListener.js';
+import { mediaEventTypes } from '../events/DOMTopLevelEventTypes';
 import {
   createDangerousStringForStyles,
   setValueForStyles,
   validateShorthandPropertyCollisionInDev,
 } from '../shared/CSSPropertyOperations';
-import {Namespaces, getIntrinsicNamespace} from '../shared/DOMNamespaces';
+import { Namespaces, getIntrinsicNamespace } from '../shared/DOMNamespaces';
 import {
   getPropertyInfo,
   shouldIgnoreAttribute,
   shouldRemoveAttribute,
 } from '../shared/DOMProperty';
 import assertValidProps from '../shared/assertValidProps';
-import {DOCUMENT_NODE, DOCUMENT_FRAGMENT_NODE} from '../shared/HTMLNodeType';
+import { DOCUMENT_NODE, DOCUMENT_FRAGMENT_NODE } from '../shared/HTMLNodeType';
 import isCustomComponent from '../shared/isCustomComponent';
 import possibleStandardNames from '../shared/possibleStandardNames';
-import {validateProperties as validateARIAProperties} from '../shared/ReactDOMInvalidARIAHook';
-import {validateProperties as validateInputProperties} from '../shared/ReactDOMNullInputValuePropHook';
-import {validateProperties as validateUnknownProperties} from '../shared/ReactDOMUnknownPropertyHook';
+import { validateProperties as validateARIAProperties } from '../shared/ReactDOMInvalidARIAHook';
+import { validateProperties as validateInputProperties } from '../shared/ReactDOMNullInputValuePropHook';
+import { validateProperties as validateUnknownProperties } from '../shared/ReactDOMUnknownPropertyHook';
 
-import {enableEventAPI} from 'shared/ReactFeatureFlags';
+import { enableEventAPI } from 'shared/ReactFeatureFlags';
 
 let didWarnInvalidHydration = false;
 let didWarnShadyDOM = false;
@@ -103,7 +103,7 @@ const CHILDREN = 'children';
 const STYLE = 'style';
 const HTML = '__html';
 
-const {html: HTML_NAMESPACE} = Namespaces;
+const { html: HTML_NAMESPACE } = Namespaces;
 
 let warnedUnknownTags;
 let suppressHydrationWarning;
@@ -135,7 +135,7 @@ if (__DEV__) {
     webview: true,
   };
 
-  validatePropertiesInDevelopment = function(type, props) {
+  validatePropertiesInDevelopment = function (type, props) {
     validateARIAProperties(type, props);
     validateInputProperties(type, props);
     validateUnknownProperties(type, props, /* canUseEventSystem */ true);
@@ -159,7 +159,7 @@ if (__DEV__) {
   const NORMALIZE_NEWLINES_REGEX = /\r\n?/g;
   const NORMALIZE_NULL_AND_REPLACEMENT_REGEX = /\u0000|\uFFFD/g;
 
-  normalizeMarkupForTextOrAttribute = function(markup: mixed): string {
+  normalizeMarkupForTextOrAttribute = function (markup: mixed): string {
     const markupString =
       typeof markup === 'string' ? markup : '' + (markup: any);
     return markupString
@@ -167,7 +167,7 @@ if (__DEV__) {
       .replace(NORMALIZE_NULL_AND_REPLACEMENT_REGEX, '');
   };
 
-  warnForTextDifference = function(
+  warnForTextDifference = function (
     serverText: string,
     clientText: string | number,
   ) {
@@ -188,7 +188,7 @@ if (__DEV__) {
     );
   };
 
-  warnForPropDifference = function(
+  warnForPropDifference = function (
     propName: string,
     serverValue: mixed,
     clientValue: mixed,
@@ -215,25 +215,25 @@ if (__DEV__) {
     );
   };
 
-  warnForExtraAttributes = function(attributeNames: Set<string>) {
+  warnForExtraAttributes = function (attributeNames: Set<string>) {
     if (didWarnInvalidHydration) {
       return;
     }
     didWarnInvalidHydration = true;
     const names = [];
-    attributeNames.forEach(function(name) {
+    attributeNames.forEach(function (name) {
       names.push(name);
     });
     warningWithoutStack(false, 'Extra attributes from the server: %s', names);
   };
 
-  warnForInvalidEventListener = function(registrationName, listener) {
+  warnForInvalidEventListener = function (registrationName, listener) {
     if (listener === false) {
       warning(
         false,
         'Expected `%s` listener to be a function, instead got `false`.\n\n' +
-          'If you used to conditionally omit it with %s={condition && value}, ' +
-          'pass %s={condition ? value : undefined} instead.',
+        'If you used to conditionally omit it with %s={condition && value}, ' +
+        'pass %s={condition ? value : undefined} instead.',
         registrationName,
         registrationName,
         registrationName,
@@ -250,7 +250,7 @@ if (__DEV__) {
 
   // Parse the HTML and read it back to normalize the HTML string so that it
   // can be used for comparison.
-  normalizeHTML = function(parent: Element, html: string) {
+  normalizeHTML = function (parent: Element, html: string) {
     // We could have created a separate document here to avoid
     // re-initializing custom elements if they exist. But this breaks
     // how <noscript> is being handled. So we use the same document.
@@ -259,8 +259,8 @@ if (__DEV__) {
       parent.namespaceURI === HTML_NAMESPACE
         ? parent.ownerDocument.createElement(parent.tagName)
         : parent.ownerDocument.createElementNS(
-            (parent.namespaceURI: any),
-            parent.tagName,
+          (parent.namespaceURI: any),
+      parent.tagName,
           );
     testElement.innerHTML = html;
     return testElement.innerHTML;
@@ -285,10 +285,10 @@ function getOwnerDocumentFromRootContainer(
 ): Document {
   return rootContainerElement.nodeType === DOCUMENT_NODE
     ? (rootContainerElement: any)
-    : rootContainerElement.ownerDocument;
+      : rootContainerElement.ownerDocument;
 }
 
-function noop() {}
+function noop() { }
 
 export function trapClickOnNonInteractiveElement(node: HTMLElement) {
   // Mobile Safari does not fire properly bubble click events on
@@ -398,6 +398,7 @@ export function createElement(
 
   // We create tags in the namespace of their parent container, except HTML
   // tags get no namespace.
+  // 我们在它们的父容器的命名空间中创建标记，除了HTML标记没有命名空间。
   const ownerDocument: Document = getOwnerDocumentFromRootContainer(
     rootContainerElement,
   );
@@ -414,8 +415,8 @@ export function createElement(
       warning(
         isCustomComponentTag || type === type.toLowerCase(),
         '<%s /> is using incorrect casing. ' +
-          'Use PascalCase for React components, ' +
-          'or lowercase for HTML elements.',
+        'Use PascalCase for React components, ' +
+        'or lowercase for HTML elements.',
         type,
       );
     }
@@ -430,7 +431,7 @@ export function createElement(
       domElement = div.removeChild(firstChild);
     } else if (typeof props.is === 'string') {
       // $FlowIssue `createElement` should be updated for Web Components
-      domElement = ownerDocument.createElement(type, {is: props.is});
+      domElement = ownerDocument.createElement(type, { is: props.is });
     } else {
       // Separate else branch instead of using `props.is || undefined` above because of a Firefox bug.
       // See discussion in https://github.com/facebook/react/pull/6896
@@ -466,15 +467,15 @@ export function createElement(
       if (
         !isCustomComponentTag &&
         Object.prototype.toString.call(domElement) ===
-          '[object HTMLUnknownElement]' &&
+        '[object HTMLUnknownElement]' &&
         !Object.prototype.hasOwnProperty.call(warnedUnknownTags, type)
       ) {
         warnedUnknownTags[type] = true;
         warning(
           false,
           'The tag <%s> is unrecognized in this browser. ' +
-            'If you meant to render a React component, start its name with ' +
-            'an uppercase letter.',
+          'If you meant to render a React component, start its name with ' +
+          'an uppercase letter.',
           type,
         );
       }
@@ -510,7 +511,7 @@ export function setInitialProperties(
       warning(
         false,
         '%s is using shady DOM. Using shady DOM with React can ' +
-          'cause things to break subtly.',
+        'cause things to break subtly.',
         getCurrentFiberOwnerNameInDevOrNull() || 'A component',
       );
       didWarnShadyDOM = true;
@@ -625,6 +626,7 @@ export function setInitialProperties(
 }
 
 // Calculate the diff between the two objects.
+// 计算两个对象之间的差异。
 export function diffProperties(
   domElement: Element,
   tag: string,
@@ -716,6 +718,8 @@ export function diffProperties(
     } else {
       // For all other deleted properties we add it to the queue. We use
       // the whitelist in the commit phase instead.
+      // 对于所有其他被删除的属性，我们将其添加到队列中。
+      // 我们在提交阶段使用白名单。
       (updatePayload = updatePayload || []).push(propKey, null);
     }
   }
@@ -812,6 +816,7 @@ export function diffProperties(
     } else {
       // For any other property we always add it to the queue and then we
       // filter it out using the whitelist during the commit.
+      // 对于任何其他属性，我们总是将其添加到队列中，然后在提交期间使用白名单过滤掉。
       (updatePayload = updatePayload || []).push(propKey, nextProp);
     }
   }
@@ -906,7 +911,7 @@ export function diffHydratedProperties(
       warning(
         false,
         '%s is using shady DOM. Using shady DOM with React can ' +
-          'cause things to break subtly.',
+        'cause things to break subtly.',
         getCurrentFiberOwnerNameInDevOrNull() || 'A component',
       );
       didWarnShadyDOM = true;
@@ -1310,7 +1315,7 @@ export function listenToEventResponderEventTypes(
           warning(
             typeof targetEventType === 'object' && targetEventType !== null,
             'Event Responder: invalid entry in event types array. ' +
-              'Entry must be string or an object. Instead, got %s.',
+            'Entry must be string or an object. Instead, got %s.',
             targetEventType,
           );
         }

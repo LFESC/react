@@ -1387,6 +1387,8 @@ function commitRoot(root) {
   runWithPriority(ImmediatePriority, commitRootImpl.bind(null, root));
   // If there are passive effects, schedule a callback to flush them. This goes
   // outside commitRootImpl so that it inherits the priority of the render.
+  // 如果有消极影响，安排一个回调来清除它们。
+  // 这超出了commitRootImpl，因此它继承了呈现的优先级。
   if (rootWithPendingPassiveEffects !== null) {
     const priorityLevel = getCurrentPriorityLevel();
     scheduleCallback(priorityLevel, () => {
@@ -1423,6 +1425,8 @@ function commitRootImpl(root) {
 
   // commitRoot never returns a continuation; it always finishes synchronously.
   // So we can clear these now to allow a new callback to be scheduled.
+  // commitRoot 从不返回延续;它总是同步完成。
+  // 因此我们现在可以清除这些，以便安排一个新的回调。
   root.callbackNode = null;
   root.callbackExpirationTime = NoWork;
 
@@ -1430,6 +1434,8 @@ function commitRootImpl(root) {
 
   // Update the first and last pending times on this root. The new first
   // pending time is whatever is left on the root fiber.
+  // 更新这个根目录上的第一个和最后一个挂起时间。
+  // 新的第一个挂起时间是留在根 fiber 上的时间。
   const updateExpirationTimeBeforeCommit = finishedWork.expirationTime;
   const childExpirationTimeBeforeCommit = finishedWork.childExpirationTime;
   const firstPendingTimeBeforeCommit =
@@ -1440,11 +1446,13 @@ function commitRootImpl(root) {
   if (firstPendingTimeBeforeCommit < root.lastPendingTime) {
     // This usually means we've finished all the work, but it can also happen
     // when something gets downprioritized during render, like a hidden tree.
+    // 这通常意味着我们已经完成了所有的工作，但它也可能发生在渲染过程中一些事情的优先级降低，比如隐藏的树。
     root.lastPendingTime = firstPendingTimeBeforeCommit;
   }
 
   if (root === workInProgressRoot) {
     // We can reset these now that they are finished.
+    // 现在这些都完成了，我们可以重新设置。
     workInProgressRoot = null;
     workInProgress = null;
     renderExpirationTime = NoWork;
@@ -1452,15 +1460,22 @@ function commitRootImpl(root) {
     // This indicates that the last root we worked on is not the same one that
     // we're committing now. This most commonly happens when a suspended root
     // times out.
+    // 这表明我们处理的最后一个根不是我们现在提交的根。
+    // 这通常发生在挂起的根超时时。
   }
 
   // Get the list of effects.
+  // 获取效果列表。
   let firstEffect;
   if (finishedWork.effectTag > PerformedWork) {
     // A fiber's effect list consists only of its children, not itself. So if
     // the root has an effect, we need to add it to the end of the list. The
     // resulting list is the set that would belong to the root's parent, if it
     // had one; that is, all the effects in the tree including the root.
+    // fiber 的效果列表只包括它的子节点，而不是它本身。
+    // 因此，如果根有效果，我们需要将它添加到列表的末尾。
+    // 结果列表是根的父列表的集合，如果根有父列表的话;
+    // 也就是说，树中的所有效果，包括根。
     if (finishedWork.lastEffect !== null) {
       finishedWork.lastEffect.nextEffect = finishedWork;
       firstEffect = finishedWork.firstEffect;
@@ -1469,6 +1484,7 @@ function commitRootImpl(root) {
     }
   } else {
     // There is no effect on the root.
+    // 对根没有影响。
     firstEffect = finishedWork.firstEffect;
   }
 
@@ -1482,6 +1498,7 @@ function commitRootImpl(root) {
     }
 
     // Reset this to null before calling lifecycles
+    // 在调用生命周期之前将其重置为null
     ReactCurrentOwner.current = null;
 
     // The commit phase is broken into several sub-phases. We do a separate pass
@@ -1491,6 +1508,12 @@ function commitRootImpl(root) {
     // The first phase a "before mutation" phase. We use this phase to read the
     // state of the host tree right before we mutate it. This is where
     // getSnapshotBeforeUpdate is called.
+    // 提交阶段分为几个子阶段。
+    // 我们对每个阶段的效果列表进行单独的遍历:所有的突变效果都在所有布局效果之前，等等。
+
+    // 第一阶段是“突变前”阶段。
+    // 在对主机树进行突变之前，我们使用这个阶段来读取主机树的状态。
+    // 这就是调用getSnapshotBeforeUpdate的地方。
     startCommitSnapshotEffectsTimer();
     prepareForCommit(root.containerInfo);
     nextEffect = firstEffect;
@@ -1522,6 +1545,7 @@ function commitRootImpl(root) {
     }
 
     // The next phase is the mutation phase, where we mutate the host tree.
+    // 下一个阶段是突变阶段，我们对宿主树进行突变。
     startCommitHostEffectsTimer();
     nextEffect = firstEffect;
     do {
@@ -1550,11 +1574,16 @@ function commitRootImpl(root) {
     // the mutation phase, so that the previous tree is still current during
     // componentWillUnmount, but before the layout phase, so that the finished
     // work is current during componentDidMount/Update.
+    // 正在进行的工作树现在是当前树。
+    // 这必须在突变阶段之后进行，以便先前的树在componentWillUnmount期间仍然是当前的，
+    // 但是在布局阶段之前，以便完成的工作在componentDidMount/Update期间是当前的。
     root.current = finishedWork;
 
     // The next phase is the layout phase, where we call effects that read
     // the host tree after it's been mutated. The idiomatic use case for this is
     // layout, but class component lifecycles also fire here for legacy reasons.
+    // 下一个阶段是布局阶段，在这里我们调用在主机树发生突变后读取它的效果。
+    // 这里的惯用用例是layout，但是类组件的生命周期也会因为遗留问题而触发。
     startCommitLifeCyclesTimer();
     nextEffect = firstEffect;
     do {
@@ -1625,6 +1654,7 @@ function commitRootImpl(root) {
   }
 
   // Check if there's remaining work on this root
+  // 检查这个根上是否还有剩余的工作
   const remainingExpirationTime = root.firstPendingTime;
   if (remainingExpirationTime !== NoWork) {
     const currentTime = requestCurrentTime();
@@ -1636,6 +1666,7 @@ function commitRootImpl(root) {
   } else {
     // If there's no remaining work, we can clear the set of already failed
     // error boundaries.
+    // 如果没有剩余的工作，我们可以清除一组已经失败的错误边界。
     legacyErrorBoundariesThatAlreadyFailed = null;
   }
 
@@ -1644,6 +1675,7 @@ function commitRootImpl(root) {
   if (remainingExpirationTime === Sync) {
     // Count the number of times the root synchronously re-renders without
     // finishing. If there are too many, it indicates an infinite update loop.
+    // 计算根节点未完成同步重新呈现的次数。如果数量太多，则表示无限更新循环。
     if (root === rootWithNestedUpdates) {
       nestedUpdateCount++;
     } else {
@@ -1666,10 +1698,14 @@ function commitRootImpl(root) {
     // a ReactDOM.render-ed root inside of batchedUpdates. The commit fired
     // synchronously, but layout updates should be deferred until the end
     // of the batch.
+    // 这是一个遗留的边缘案例。
+    // 我们只是提交了 ReactDOM.render-ed root 的初始挂载在 batchedUpdates。
+    // 提交是同步触发的，但是布局更新应该延迟到批处理结束时。
     return null;
   }
 
   // If layout work was scheduled, flush it now.
+  // 如果布局工作已经安排好了，现在就刷新它。
   flushSyncCallbackQueue();
   return null;
 }
@@ -1711,12 +1747,15 @@ function commitMutationEffects() {
     // updates, and deletions. To avoid needing to add a case for every possible
     // bitmap value, we remove the secondary effects from the effect tag and
     // switch on that value.
+    // 下面的switch语句只关心放置、更新和删除。
+    // 为了避免为每个可能的位图值添加大小写，我们从effect标签中删除次要的效果，并切换到该值。
     let primaryEffectTag = effectTag & (Placement | Update | Deletion);
     switch (primaryEffectTag) {
       case Placement: {
         commitPlacement(nextEffect);
         // Clear the "placement" from effect tag so that we know that this is
         // inserted, before any life-cycles like componentDidMount gets called.
+        // 清除effect标签上的“放置”，这样我们就知道它已经被插入了，在调用componentDidMount这样的生命周期之前。
         // TODO: findDOMNode doesn't rely on this any more but isMounted does
         // and isMounted is deprecated anyway so we should be able to kill this.
         nextEffect.effectTag &= ~Placement;

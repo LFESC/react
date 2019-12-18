@@ -219,6 +219,7 @@ if (supportsMutation) {
     newText: string,
   ) {
     // If the text differs, mark it as an update. All the work in done in commitWork.
+    // 如果文本不同，就把它标记为更新。所有的工作在交付工作中完成。
     if (oldText !== newText) {
       markUpdate(workInProgress);
     }
@@ -661,6 +662,7 @@ function completeWork(
         const oldText = current.memoizedProps;
         // If we have an alternate, that means this is an update and we need
         // to schedule a side-effect to do the updates.
+        // 如果我们有一个替代，这意味着这是一个更新，我们需要安排一个副作用来做更新。
         updateHostText(current, workInProgress, oldText, newText);
       } else {
         if (typeof newText !== 'string') {

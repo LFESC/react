@@ -9,7 +9,7 @@
 
 const BEFORE_SLASH_RE = /^(.*)[\\\/]/;
 
-export default function(
+export default function (
   name: null | string,
   source: any,
   ownerName: null | string,

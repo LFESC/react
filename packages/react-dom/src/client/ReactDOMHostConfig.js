@@ -446,8 +446,10 @@ export function commitUpdate(
 ): void {
   // Update the props handle so that we know which props are the ones with
   // with current event handlers.
+  // 更新 props 句柄，以便我们知道哪些 props 具有当前事件处理程序。
   updateFiberProps(domElement, newProps);
   // Apply the diff to the DOM node.
+  // 将diff应用到DOM节点。
   updateProperties(domElement, updatePayload, type, oldProps, newProps);
 }
 

@@ -1007,6 +1007,7 @@ function commitPlacement(finishedWork: Fiber): void {
   const before = getHostSibling(finishedWork);
   // We only have the top Fiber that was inserted but we need to recurse down its
   // children to find all the terminal nodes.
+  // 我们只有插入的最上面的 fiber，但是我们需要递归地向下找到它的子节点来找到所有的终端节点。
   let node: Fiber = finishedWork;
   while (true) {
     if (node.tag === HostComponent || node.tag === HostText) {
@@ -1028,6 +1029,8 @@ function commitPlacement(finishedWork: Fiber): void {
       // If the insertion itself is a portal, then we don't want to traverse
       // down its children. Instead, we'll get insertions from each child in
       // the portal directly.
+      // 如果插入本身是一个portal，那么我们不想遍历它的子节点。
+      // 相反，我们将直接从portal中的每个子节点获取插入。
     } else if (node.child !== null) {
       node.child.return = node;
       node = node.child;
@@ -1050,13 +1053,16 @@ function commitPlacement(finishedWork: Fiber): void {
 function unmountHostComponents(current): void {
   // We only have the top Fiber that was deleted but we need to recurse down its
   // children to find all the terminal nodes.
+  // 我们只删除了顶部的 fiber，但是我们需要递归地向下查找它的子节点来找到所有的终端节点。
   let node: Fiber = current;
 
   // Each iteration, currentParent is populated with node's host parent if not
   // currentParentIsValid.
+  // 每一次迭代，currentParent 都会被节点的主机父节点填充，如果不是currentParentIsValid。
   let currentParentIsValid = false;
 
   // Note: these two variables *must* always be updated together.
+  // 注意:这两个变量*必须*总是一起更新。
   let currentParent;
   let currentParentIsContainer;
 
@@ -1163,6 +1169,8 @@ function commitDeletion(current: Fiber): void {
   if (supportsMutation) {
     // Recursively delete all host nodes from the parent.
     // Detach refs and call componentWillUnmount() on the whole subtree.
+    // 递归地从父节点删除所有的主机节点。
+    // 在整个子树中分离refs并调用componentWillUnmount()
     unmountHostComponents(current);
   } else {
     // Detach refs and call componentWillUnmount() on the whole subtree.
@@ -1213,10 +1221,13 @@ function commitWork(current: Fiber | null, finishedWork: Fiber): void {
       const instance: Instance = finishedWork.stateNode;
       if (instance != null) {
         // Commit the work prepared earlier.
+        // 把早前准备的工作交上去。
         const newProps = finishedWork.memoizedProps;
         // For hydration we reuse the update path but we treat the oldProps
         // as the newProps. The updatePayload will contain the real change in
         // this case.
+        // 为了 hydration，我们重用更新路径，但我们把旧的 props 当作新 props。
+        // 在本例中，updatePayload将包含真正的更改。
         const oldProps = current !== null ? current.memoizedProps : newProps;
         const type = finishedWork.type;
         // TODO: Type the updateQueue to be specific to host components.
@@ -1246,6 +1257,8 @@ function commitWork(current: Fiber | null, finishedWork: Fiber): void {
       // For hydration we reuse the update path but we treat the oldProps
       // as the newProps. The updatePayload will contain the real change in
       // this case.
+      // 为了 hydration，我们重用更新路径，但我们把旧的 props 当作新 props。
+      // 在本例中，updatePayload将包含真正的更改。
       const oldText: string =
         current !== null ? current.memoizedProps : newText;
       commitTextUpdate(textInstance, oldText, newText);

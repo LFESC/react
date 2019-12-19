@@ -840,6 +840,9 @@ export function updateProperties(
   // Update checked *before* name.
   // In the middle of an update, it is possible to have multiple checked.
   // When a checked radio tries to change name, browser makes another radio's checked false.
+  // 更新检查*之前*名。
+  // 在更新过程中，可能会有多次检查。
+  // 当一个 checked 的 radio 试图更改名称时，browser将使另一个 checked 的 radio 变为false。
   if (
     tag === 'input' &&
     nextRawProps.type === 'radio' &&
@@ -865,6 +868,9 @@ export function updateProperties(
       // Update the wrapper around inputs *after* updating props. This has to
       // happen after `updateDOMProperties`. Otherwise HTML5 input validations
       // raise warnings and prevent the new value from being assigned.
+      // 在更新 props 之后更新输入的包装。
+      // 这必须发生在“updateDOMProperties”之后。
+      // 否则，HTML5输入验证将发出警告并阻止新值的分配。
       ReactDOMInputUpdateWrapper(domElement, nextRawProps);
       break;
     case 'textarea':

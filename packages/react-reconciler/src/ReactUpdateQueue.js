@@ -305,6 +305,7 @@ export function enqueueCapturedUpdate<State>(
 ) {
   // Captured updates go into a separate list, and only on the work-in-
   // progress queue.
+  // 获取的更新将进入一个单独的列表，并且只在正在进行的工作队列中。
   let workInProgressQueue = workInProgress.updateQueue;
   if (workInProgressQueue === null) {
     workInProgressQueue = workInProgress.updateQueue = createUpdateQueue(

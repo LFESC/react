@@ -891,6 +891,7 @@ function renderRoot(
         break;
       } catch (thrownValue) {
         // Reset module-level state that was set during the render phase.
+        // 重置渲染阶段设置的模块级状态。
         resetContextDependencies();
         resetHooks();
 
@@ -900,6 +901,9 @@ function renderRoot(
           // because there's no ancestor that can handle it; the root is
           // supposed to capture all errors that weren't caught by an error
           // boundary.
+          // 预计将在非根 fiber 上工作。
+          // 这是一个致命的错误，因为没有祖先可以处理它;
+          // 根应该捕获所有没有被错误边界捕获的错误。
           prepareFreshStack(root, expirationTime);
           workPhase = prevWorkPhase;
           throw thrownValue;
@@ -1766,6 +1770,7 @@ function commitMutationEffects() {
         commitPlacement(nextEffect);
         // Clear the "placement" from effect tag so that we know that this is
         // inserted, before any life-cycles like componentDidMount gets called.
+        // 清除effect标签上的“放置”，这样我们就知道它已经被插入了，在调用componentDidMount这样的生命周期之前。
         nextEffect.effectTag &= ~Placement;
 
         // Update

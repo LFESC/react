@@ -7,15 +7,15 @@
  * @flow
  */
 
-import type {Fiber} from './ReactFiber';
-import type {FiberRoot} from './ReactFiberRoot';
-import type {ExpirationTime} from './ReactFiberExpirationTime';
-import type {CapturedValue} from './ReactCapturedValue';
-import type {Update} from './ReactUpdateQueue';
-import type {Thenable} from './ReactFiberWorkLoop';
-import type {SuspenseContext} from './ReactFiberSuspenseContext';
+import type { Fiber } from './ReactFiber';
+import type { FiberRoot } from './ReactFiberRoot';
+import type { ExpirationTime } from './ReactFiberExpirationTime';
+import type { CapturedValue } from './ReactCapturedValue';
+import type { Update } from './ReactUpdateQueue';
+import type { Thenable } from './ReactFiberWorkLoop';
+import type { SuspenseContext } from './ReactFiberSuspenseContext';
 
-import {unstable_wrap as Schedule_tracing_wrap} from 'scheduler/tracing';
+import { unstable_wrap as Schedule_tracing_wrap } from 'scheduler/tracing';
 import getComponentName from 'shared/getComponentName';
 import warningWithoutStack from 'shared/warningWithoutStack';
 import {
@@ -36,10 +36,10 @@ import {
   enableSchedulerTracing,
   enableSuspenseServerRenderer,
 } from 'shared/ReactFeatureFlags';
-import {NoMode, BatchedMode} from './ReactTypeOfMode';
-import {shouldCaptureSuspense} from './ReactFiberSuspenseComponent';
+import { NoMode, BatchedMode } from './ReactTypeOfMode';
+import { shouldCaptureSuspense } from './ReactFiberSuspenseComponent';
 
-import {createCapturedValue} from './ReactCapturedValue';
+import { createCapturedValue } from './ReactCapturedValue';
 import {
   enqueueCapturedUpdate,
   createUpdate,
@@ -47,9 +47,9 @@ import {
   ForceUpdate,
   enqueueUpdate,
 } from './ReactUpdateQueue';
-import {logError} from './ReactFiberCommitWork';
-import {getStackByFiberInDevAndProd} from './ReactCurrentFiber';
-import {markFailedErrorBoundaryForHotReloading} from './ReactFiberHotReloading';
+import { logError } from './ReactFiberCommitWork';
+import { getStackByFiberInDevAndProd } from './ReactCurrentFiber';
+import { markFailedErrorBoundaryForHotReloading } from './ReactFiberHotReloading';
 import {
   suspenseStackCursor,
   InvisibleParentSuspenseContext,
@@ -67,7 +67,7 @@ import {
 
 import invariant from 'shared/invariant';
 
-import {Sync} from './ReactFiberExpirationTime';
+import { Sync } from './ReactFiberExpirationTime';
 
 const PossiblyWeakSet = typeof WeakSet === 'function' ? WeakSet : Set;
 const PossiblyWeakMap = typeof WeakMap === 'function' ? WeakMap : Map;
@@ -79,11 +79,13 @@ function createRootErrorUpdate(
 ): Update<mixed> {
   const update = createUpdate(expirationTime, null);
   // Unmount the root by rendering null.
+  // 通过渲染null来卸载根目录。
   update.tag = CaptureUpdate;
   // Caution: React DevTools currently depends on this property
   // being called "element".
-  update.payload = {element: null};
+  // 注意:React DevTools目前依赖于被称为“element”的属性。
   const error = errorInfo.value;
+  update.payload = { element: null };
   update.callback = () => {
     onUncaughtError(error);
     logError(fiber, errorInfo);
@@ -134,7 +136,7 @@ function createClassErrorUpdate(
           warningWithoutStack(
             fiber.expirationTime === Sync,
             '%s: Error boundaries should implement getDerivedStateFromError(). ' +
-              'In that method, return a state update to display an error message or fallback UI.',
+            'In that method, return a state update to display an error message or fallback UI.',
             getComponentName(fiber.type) || 'Unknown',
           );
         }
@@ -193,8 +195,10 @@ function throwException(
   renderExpirationTime: ExpirationTime,
 ) {
   // The source fiber did not complete.
+  // 源 fiber 没有完成。
   sourceFiber.effectTag |= Incomplete;
   // Its effect list is no longer valid.
+  // 其 effect 列表不再有效。
   sourceFiber.firstEffect = sourceFiber.lastEffect = null;
 
   if (
@@ -296,7 +300,7 @@ function throwException(
           invariant(
             current,
             'A dehydrated suspense boundary must commit before trying to render. ' +
-              'This is probably a bug in React.',
+            'This is probably a bug in React.',
           );
           current.memoizedState = retryCache;
         }
@@ -321,17 +325,19 @@ function throwException(
     // TODO: Use invariant so the message is stripped in prod?
     value = new Error(
       (getComponentName(sourceFiber.type) || 'A React component') +
-        ' suspended while rendering, but no fallback UI was specified.\n' +
-        '\n' +
-        'Add a <Suspense fallback=...> component higher in the tree to ' +
-        'provide a loading indicator or placeholder to display.' +
-        getStackByFiberInDevAndProd(sourceFiber),
+      ' suspended while rendering, but no fallback UI was specified.\n' +
+      '\n' +
+      'Add a <Suspense fallback=...> component higher in the tree to ' +
+      'provide a loading indicator or placeholder to display.' +
+      getStackByFiberInDevAndProd(sourceFiber),
     );
   }
 
   // We didn't find a boundary that could handle this type of exception. Start
   // over and traverse parent path again, this time treating the exception
   // as an error.
+  // 我们没有找到可以处理这种类型异常的边界。
+  // 重新启动并遍历父路径，这次将异常视为错误。
   renderDidError();
   value = createCapturedValue(value, sourceFiber);
   let workInProgress = returnFiber;
@@ -364,6 +370,7 @@ function throwException(
           workInProgress.effectTag |= ShouldCapture;
           workInProgress.expirationTime = renderExpirationTime;
           // Schedule the error boundary to re-render using updated state
+          // 使用更新状态重新渲染错误边界
           const update = createClassErrorUpdate(
             workInProgress,
             errorInfo,
@@ -380,4 +387,4 @@ function throwException(
   } while (workInProgress !== null);
 }
 
-export {throwException, createRootErrorUpdate, createClassErrorUpdate};
+export { throwException, createRootErrorUpdate, createClassErrorUpdate };

@@ -7,9 +7,9 @@
  * @flow
  */
 
-import type {Fiber} from './ReactFiber';
+import type { Fiber } from './ReactFiber';
 
-import {getStackByFiberInDevAndProd} from './ReactCurrentFiber';
+import { getStackByFiberInDevAndProd } from './ReactCurrentFiber';
 
 export type CapturedValue<T> = {
   value: T,
@@ -33,6 +33,7 @@ export function createCapturedValue<T>(
 ): CapturedValue<T> {
   // If the value is an error, call this function immediately after it is thrown
   // so the stack is accurate.
+  // 如果该值是一个错误，则在抛出该函数后立即调用该函数，以便堆栈是准确的。
   return {
     value,
     source,

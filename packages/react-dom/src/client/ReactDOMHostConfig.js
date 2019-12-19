@@ -427,6 +427,10 @@ export function commitMount(
   // does to implement the `autoFocus` attribute on the client). But
   // there are also other cases when this might happen (such as patching
   // up text content during hydration mismatch). So we'll check this again.
+  // 尽管该方法的命名可能有其他含义，但它只在挂载过程中调度了“更新”效果时才触发。
+  // 如果' finalizeInitialChildren '返回' true '(在客户端实现' autoFocus '属性时会发生这种情况)。
+  // 但是在其他情况下也可能发生这种情况(例如在水合作用不匹配时修补文本内容)。
+  // 我们再检查一下。
   if (shouldAutoFocusHostComponent(type, newProps)) {
     ((domElement: any):
       | HTMLButtonElement

@@ -410,6 +410,7 @@ function commitLifeCycles(
           startPhaseTimer(finishedWork, 'componentDidMount');
           // We could update instance props and state here,
           // but instead we rely on them being set during last render.
+          // 我们可以在这里更新实例的道具和状态，但是我们依赖于在最后渲染时设置它们。
           // TODO: revisit this when we implement resuming.
           if (__DEV__) {
             if (
@@ -447,6 +448,7 @@ function commitLifeCycles(
           startPhaseTimer(finishedWork, 'componentDidUpdate');
           // We could update instance props and state here,
           // but instead we rely on them being set during last render.
+          // 我们可以在这里更新实例的 props 和 state，但是我们依赖于在最后渲染时设置它们。
           // TODO: revisit this when we implement resuming.
           if (__DEV__) {
             if (
@@ -510,6 +512,7 @@ function commitLifeCycles(
         }
         // We could update instance props and state here,
         // but instead we rely on them being set during last render.
+        // 我们可以在这里更新实例的 props 和 state，但是我们依赖于在最后渲染时设置它们。
         // TODO: revisit this when we implement resuming.
         commitUpdateQueue(
           finishedWork,
@@ -550,6 +553,8 @@ function commitLifeCycles(
       // (eg DOM renderer may schedule auto-focus for inputs and form controls).
       // These effects should only be committed when components are first mounted,
       // aka when there is no current/alternate.
+      // 渲染器可能会在宿主组件挂载后安排要完成的工作(例如，DOM渲染器可能会为输入和表单控件安排自动聚焦)。
+      //  这些效果应该只在组件第一次挂载时提交，也就是没有当前/备用时提交。
       if (current === null && finishedWork.effectTag & Update) {
         const type = finishedWork.type;
         const props = finishedWork.memoizedProps;

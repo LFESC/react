@@ -196,12 +196,14 @@ export function propagateContextChange(
   let fiber = workInProgress.child;
   if (fiber !== null) {
     // Set the return pointer of the child to the work-in-progress fiber.
+    // 将子进程的返回指针设置为正在工作的 fiber。
     fiber.return = workInProgress;
   }
   while (fiber !== null) {
     let nextFiber;
 
     // Visit this fiber.
+    // 访问这条 fiber。
     const list = fiber.contextDependencies;
     if (list !== null) {
       nextFiber = fiber.child;
@@ -209,14 +211,17 @@ export function propagateContextChange(
       let dependency = list.first;
       while (dependency !== null) {
         // Check if the context matches.
+        // 检查上下文是否匹配。
         if (
           dependency.context === context &&
           (dependency.observedBits & changedBits) !== 0
         ) {
           // Match! Schedule an update on this fiber.
+          // 匹配! 安排此 fiber 的更新。
 
           if (fiber.tag === ClassComponent) {
             // Schedule a force update on the work-in-progress.
+            // 对正在进行的工作安排一个强制更新。
             const update = createUpdate(renderExpirationTime, null);
             update.tag = ForceUpdate;
             // TODO: Because we don't have a work-in-progress, this will add the
@@ -252,6 +257,7 @@ export function propagateContextChange(
       }
     } else if (fiber.tag === ContextProvider) {
       // Don't scan deeper if this is a matching provider
+      // 如果这是一个匹配的 provider，不要进行更深入的扫描
       nextFiber = fiber.type === workInProgress.type ? null : fiber.child;
     } else if (
       enableSuspenseServerRenderer &&
@@ -283,24 +289,29 @@ export function propagateContextChange(
 
     if (nextFiber !== null) {
       // Set the return pointer of the child to the work-in-progress fiber.
+      // 将子进程的返回指针设置为正在工作的 fiber。
       nextFiber.return = fiber;
     } else {
       // No child. Traverse to next sibling.
+      // 没有孩子。遍历到下一个兄弟。
       nextFiber = fiber;
       while (nextFiber !== null) {
         if (nextFiber === workInProgress) {
           // We're back to the root of this subtree. Exit.
+          // 我们回到了这个子树的根。退出。
           nextFiber = null;
           break;
         }
         let sibling = nextFiber.sibling;
         if (sibling !== null) {
           // Set the return pointer of the sibling to the work-in-progress fiber.
+          // 将同级的返回指针设置为正在工作的 fiber。
           sibling.return = nextFiber.return;
           nextFiber = sibling;
           break;
         }
         // No more siblings. Traverse up.
+        // 没有更多的兄弟姐妹。向上遍历。
         nextFiber = nextFiber.return;
       }
     }
@@ -322,6 +333,7 @@ export function prepareToReadContext(
     currentDependencies.expirationTime >= renderExpirationTime
   ) {
     // Context list has a pending update. Mark that this fiber performed work.
+    // 上下文列表有一个待定更新。标记这条 fiber 完成了工作。
     markWorkInProgressReceivedUpdate();
   }
 

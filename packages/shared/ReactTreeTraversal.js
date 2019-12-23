@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {HostComponent} from './ReactWorkTags';
+import { HostComponent } from './ReactWorkTags';
 
 function getParent(inst) {
   do {
@@ -82,6 +82,7 @@ export function getParentInstance(inst) {
 
 /**
  * Simulates the traversal of a two-phase, capture/bubble event dispatch.
+ * 模拟两阶段捕获/冒泡事件分派的遍历。
  */
 export function traverseTwoPhase(inst, fn, arg) {
   const path = [];
@@ -90,7 +91,7 @@ export function traverseTwoPhase(inst, fn, arg) {
     inst = getParent(inst);
   }
   let i;
-  for (i = path.length; i-- > 0; ) {
+  for (i = path.length; i-- > 0;) {
     fn(path[i], 'captured', arg);
   }
   for (i = 0; i < path.length; i++) {
@@ -140,7 +141,7 @@ export function traverseEnterLeave(from, to, fn, argFrom, argTo) {
   for (let i = 0; i < pathFrom.length; i++) {
     fn(pathFrom[i], 'bubbled', argFrom);
   }
-  for (let i = pathTo.length; i-- > 0; ) {
+  for (let i = pathTo.length; i-- > 0;) {
     fn(pathTo[i], 'captured', argTo);
   }
 }

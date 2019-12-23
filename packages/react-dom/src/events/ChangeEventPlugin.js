@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {runEventsInBatch} from 'events/EventBatching';
-import {accumulateTwoPhaseDispatches} from 'events/EventPropagators';
-import {enqueueStateRestore} from 'events/ReactControlledComponent';
-import {batchedUpdates} from 'events/ReactGenericBatching';
+import { runEventsInBatch } from 'events/EventBatching';
+import { accumulateTwoPhaseDispatches } from 'events/EventPropagators';
+import { enqueueStateRestore } from 'events/ReactControlledComponent';
+import { batchedUpdates } from 'events/ReactGenericBatching';
 import SyntheticEvent from 'events/SyntheticEvent';
 import isTextInputElement from 'shared/isTextInputElement';
-import {canUseDOM} from 'shared/ExecutionEnvironment';
+import { canUseDOM } from 'shared/ExecutionEnvironment';
 
 import {
   TOP_BLUR,
@@ -25,10 +25,10 @@ import {
 } from './DOMTopLevelEventTypes';
 import getEventTarget from './getEventTarget';
 import isEventSupported from './isEventSupported';
-import {getNodeFromInstance} from '../client/ReactDOMComponentTree';
-import {updateValueIfChanged} from '../client/inputValueTracking';
-import {setDefaultValue} from '../client/ReactDOMInput';
-import {disableInputAttributeSyncing} from 'shared/ReactFeatureFlags';
+import { getNodeFromInstance } from '../client/ReactDOMComponentTree';
+import { updateValueIfChanged } from '../client/inputValueTracking';
+import { setDefaultValue } from '../client/ReactDOMInput';
+import { disableInputAttributeSyncing } from 'shared/ReactFeatureFlags';
 
 const eventTypes = {
   change: {
@@ -58,6 +58,7 @@ function createAndAccumulateChangeEvent(inst, nativeEvent, target) {
   );
   event.type = 'change';
   // Flag this event loop as needing state restore.
+  // 将此事件循环标记为需要状态恢复。
   enqueueStateRestore(target);
   accumulateTwoPhaseDispatches(event);
   return event;
@@ -260,7 +261,7 @@ const ChangeEventPlugin = {
 
   _isInputEventSupported: isInputEventSupported,
 
-  extractEvents: function(
+  extractEvents: function (
     topLevelType,
     targetInst,
     nativeEvent,
@@ -299,6 +300,7 @@ const ChangeEventPlugin = {
     }
 
     // When blurring, set the value attribute for number inputs
+    // 当失去焦点时，为数字输入设置value属性
     if (topLevelType === TOP_BLUR) {
       handleControlledInputBlur(targetNode);
     }

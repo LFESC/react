@@ -72,16 +72,16 @@ export function invokeGuardedCallbackAndCatchFirstError<
   E,
   F,
   Context,
->(
-  name: string | null,
-  func: (a: A, b: B, c: C, d: D, e: E, f: F) => void,
-  context: Context,
-  a: A,
-  b: B,
-  c: C,
-  d: D,
-  e: E,
-  f: F,
+  >(
+    name: string | null,
+    func: (a: A, b: B, c: C, d: D, e: E, f: F) => void,
+    context: Context,
+    a: A,
+    b: B,
+    c: C,
+    d: D,
+    e: E,
+    f: F,
 ): void {
   invokeGuardedCallback.apply(this, arguments);
   if (hasError) {
@@ -120,7 +120,7 @@ export function clearCaughtError() {
     invariant(
       false,
       'clearCaughtError was called but no error was captured. This error ' +
-        'is likely caused by a bug in React. Please file an issue.',
+      'is likely caused by a bug in React. Please file an issue.',
     );
   }
 }

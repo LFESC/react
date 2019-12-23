@@ -353,6 +353,8 @@ function setInitialDOMProperties(
       // We could have excluded it in the property list instead of
       // adding a special case here, but then it wouldn't be emitted
       // on server rendering (but we *do* want to emit it in SSR).
+      // 我们在提交时在客户端分别填充它。
+      // 我们本可以在属性列表中排除它，而不是在这里添加一个特殊的情况，但是这样它就不会在服务器渲染中发出(但是我们希望在SSR中发出)。
     } else if (registrationNameModules.hasOwnProperty(propKey)) {
       if (nextProp != null) {
         if (__DEV__ && typeof nextProp !== 'function') {
@@ -561,6 +563,7 @@ export function setInitialProperties(
       trapBubbledEvent(TOP_INVALID, domElement);
       // For controlled components we always need to ensure we're listening
       // to onChange. Even if there is no listener.
+      // 对于受控组件，我们总是需要确保监听onChange。即使没有 listener。
       ensureListeningTo(rootContainerElement, 'onChange');
       break;
     case 'option':

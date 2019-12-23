@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {invokeGuardedCallbackAndCatchFirstError} from 'shared/ReactErrorUtils';
+import { invokeGuardedCallbackAndCatchFirstError } from 'shared/ReactErrorUtils';
 import invariant from 'shared/invariant';
 import warningWithoutStack from 'shared/warningWithoutStack';
 
@@ -25,14 +25,14 @@ export function setComponentTree(
     warningWithoutStack(
       getNodeFromInstance && getInstanceFromNode,
       'EventPluginUtils.setComponentTree(...): Injected ' +
-        'module is missing getNodeFromInstance or getInstanceFromNode.',
+      'module is missing getNodeFromInstance or getInstanceFromNode.',
     );
   }
 }
 
 let validateEventDispatches;
 if (__DEV__) {
-  validateEventDispatches = function(event) {
+  validateEventDispatches = function (event) {
     const dispatchListeners = event._dispatchListeners;
     const dispatchInstances = event._dispatchInstances;
 
@@ -72,6 +72,7 @@ export function executeDispatch(event, listener, inst) {
 
 /**
  * Standard/simple iteration through an event's collected dispatches.
+ * 通过事件的收集调度进行标准/简单的迭代。
  */
 export function executeDispatchesInOrder(event) {
   const dispatchListeners = event._dispatchListeners;
@@ -85,6 +86,7 @@ export function executeDispatchesInOrder(event) {
         break;
       }
       // Listeners and Instances are two parallel arrays that are always in sync.
+      // 监听器和实例是两个总是同步的并行数组。
       executeDispatch(event, dispatchListeners[i], dispatchInstances[i]);
     }
   } else if (dispatchListeners) {

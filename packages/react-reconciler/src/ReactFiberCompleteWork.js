@@ -615,6 +615,7 @@ function completeWork(
           ) {
             // If changes to the hydrated node needs to be applied at the
             // commit-phase we mark this as such.
+            // 如果需要在提交阶段对 hydrated 节点进行更改，我们将其标记为这样。
             markUpdate(workInProgress);
           }
         } else {

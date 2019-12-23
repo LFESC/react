@@ -7,14 +7,14 @@
  * @flow
  */
 
-import type {Fiber} from './ReactFiber';
+import type { Fiber } from './ReactFiber';
 import type {
   Instance,
-  TextInstance,
-  HydratableInstance,
-  SuspenseInstance,
-  Container,
-  HostContext,
+    TextInstance,
+    HydratableInstance,
+    SuspenseInstance,
+    Container,
+    HostContext,
 } from './ReactFiberHostConfig';
 
 import {
@@ -24,10 +24,10 @@ import {
   SuspenseComponent,
   DehydratedSuspenseComponent,
 } from 'shared/ReactWorkTags';
-import {Deletion, Placement} from 'shared/ReactSideEffectTags';
+import { Deletion, Placement } from 'shared/ReactSideEffectTags';
 import invariant from 'shared/invariant';
 
-import {createFiberFromHostInstanceForDeletion} from './ReactFiber';
+import { createFiberFromHostInstanceForDeletion } from './ReactFiber';
 import {
   shouldSetTextContent,
   supportsHydration,
@@ -50,7 +50,7 @@ import {
   didNotFindHydratableTextInstance,
   didNotFindHydratableSuspenseInstance,
 } from './ReactFiberHostConfig';
-import {enableSuspenseServerRenderer} from 'shared/ReactFeatureFlags';
+import { enableSuspenseServerRenderer } from 'shared/ReactFeatureFlags';
 
 // The deepest Fiber on the stack involved in a hydration context.
 // This may have been an insertion or a hydration.
@@ -243,6 +243,9 @@ function tryToClaimNextHydratableInstance(fiber: Fiber): void {
     // If we can't hydrate this instance let's try the next one.
     // We use this as a heuristic. It's based on intuition and not data so it
     // might be flawed or unnecessary.
+    // 如果这次不行，那就下次吧。
+    // 我们把这当作一种启发。
+    // 它是基于直觉而不是数据，所以它可能是有缺陷的或不必要的。
     nextInstance = getNextHydratableSibling(firstAttemptedInstance);
     if (!nextInstance || !tryHydrate(fiber, nextInstance)) {
       // Nothing to hydrate. Make it an insertion.
@@ -255,6 +258,9 @@ function tryToClaimNextHydratableInstance(fiber: Fiber): void {
     // superfluous and we'll delete it. Since we can't eagerly delete it
     // we'll have to schedule a deletion. To do that, this node needs a dummy
     // fiber associated with it.
+    // 我们匹配了下一个，我们现在假设第一个是多余的，我们将删除它。
+    // 由于我们不能立即删除它，我们将不得不安排一个删除。
+    // 为此，这个节点需要一个与它相关联的 fiber。
     deleteHydratableInstance(
       (hydrationParentFiber: any),
       firstAttemptedInstance,
@@ -273,7 +279,7 @@ function prepareToHydrateHostInstance(
     invariant(
       false,
       'Expected prepareToHydrateHostInstance() to never be called. ' +
-        'This error is likely caused by a bug in React. Please file an issue.',
+      'This error is likely caused by a bug in React. Please file an issue.',
     );
   }
 
@@ -290,6 +296,7 @@ function prepareToHydrateHostInstance(
   fiber.updateQueue = (updatePayload: any);
   // If the update payload indicates that there is a change or if there
   // is a new ref we mark this as an update.
+  // 如果更新 payload 表明有一个变化，或者如果有一个新的ref，我们把它标记为一个更新。
   if (updatePayload !== null) {
     return true;
   }
@@ -301,7 +308,7 @@ function prepareToHydrateHostTextInstance(fiber: Fiber): boolean {
     invariant(
       false,
       'Expected prepareToHydrateHostTextInstance() to never be called. ' +
-        'This error is likely caused by a bug in React. Please file an issue.',
+      'This error is likely caused by a bug in React. Please file an issue.',
     );
   }
 
@@ -349,14 +356,14 @@ function skipPastDehydratedSuspenseInstance(fiber: Fiber): void {
     invariant(
       false,
       'Expected skipPastDehydratedSuspenseInstance() to never be called. ' +
-        'This error is likely caused by a bug in React. Please file an issue.',
+      'This error is likely caused by a bug in React. Please file an issue.',
     );
   }
   let suspenseInstance = fiber.stateNode;
   invariant(
     suspenseInstance,
     'Expected to have a hydrated suspense instance. ' +
-      'This error is likely caused by a bug in React. Please file an issue.',
+    'This error is likely caused by a bug in React. Please file an issue.',
   );
   nextHydratableInstance = getNextHydratableInstanceAfterSuspenseInstance(
     suspenseInstance,
@@ -383,12 +390,14 @@ function popHydrationState(fiber: Fiber): boolean {
   if (fiber !== hydrationParentFiber) {
     // We're deeper than the current hydration context, inside an inserted
     // tree.
+    // 我们比当前的 hydration context 更深入，在一棵插入的树里。
     return false;
   }
   if (!isHydrating) {
     // If we're not currently hydrating but we're in a hydration context, then
     // we were an insertion and now need to pop up reenter hydration of our
     // siblings.
+    // 如果我们目前没有 hydrating，但我们处于 hydration context 中，那么我们是一个插入，现在需要弹出重新进入我们的兄弟节点的 hydration。
     popToNextHostParent(fiber);
     isHydrating = true;
     return false;
@@ -400,6 +409,9 @@ function popHydrationState(fiber: Fiber): boolean {
   // We only do this deeper than head and body since they tend to have random
   // other nodes in them. We also ignore components with pure text content in
   // side of them.
+  // 如果我们有任何剩余的 hydratable 节点，我们现在需要删除它们。
+  // 我们这样做的深度只比 head 和 body 深，因为它们往往有随机的其他节点。
+  // 我们还忽略了纯文本内容的组件。
   // TODO: Better heuristic.
   if (
     fiber.tag !== HostComponent ||

@@ -7,22 +7,22 @@
  * @flow
  */
 
-import type {AnyNativeEvent} from 'events/PluginModuleType';
-import type {Fiber} from 'react-reconciler/src/ReactFiber';
-import type {DOMTopLevelEventType} from 'events/TopLevelEventTypes';
+import type { AnyNativeEvent } from 'events/PluginModuleType';
+import type { Fiber } from 'react-reconciler/src/ReactFiber';
+import type { DOMTopLevelEventType } from 'events/TopLevelEventTypes';
 
 import {
   batchedEventUpdates,
   discreteUpdates,
   flushDiscreteUpdates,
 } from 'events/ReactGenericBatching';
-import {runExtractedPluginEventsInBatch} from 'events/EventPluginHub';
+import { runExtractedPluginEventsInBatch } from 'events/EventPluginHub';
 import {
   dispatchEventForResponderEventSystem,
   shouldflushDiscreteUpdates,
 } from '../events/DOMEventResponderSystem';
-import {isFiberMounted} from 'react-reconciler/reflection';
-import {HostRoot} from 'shared/ReactWorkTags';
+import { isFiberMounted } from 'react-reconciler/reflection';
+import { HostRoot } from 'shared/ReactWorkTags';
 import {
   type EventSystemFlags,
   PLUGIN_EVENT_SYSTEM,
@@ -38,14 +38,14 @@ import {
   addEventCaptureListenerWithPassiveFlag,
 } from './EventListener';
 import getEventTarget from './getEventTarget';
-import {getClosestInstanceFromNode} from '../client/ReactDOMComponentTree';
+import { getClosestInstanceFromNode } from '../client/ReactDOMComponentTree';
 import SimpleEventPlugin from './SimpleEventPlugin';
-import {getRawEventName} from './DOMTopLevelEventTypes';
-import {passiveBrowserEventsSupported} from './checkPassiveEvents';
+import { getRawEventName } from './DOMTopLevelEventTypes';
+import { passiveBrowserEventsSupported } from './checkPassiveEvents';
 
-import {enableEventAPI} from 'shared/ReactFeatureFlags';
+import { enableEventAPI } from 'shared/ReactFeatureFlags';
 
-const {isInteractiveTopLevelEventType} = SimpleEventPlugin;
+const { isInteractiveTopLevelEventType } = SimpleEventPlugin;
 
 const CALLBACK_BOOKKEEPING_POOL_SIZE = 10;
 const callbackBookkeepingPool = [];
@@ -77,6 +77,7 @@ function findRootContainerNode(inst) {
 }
 
 // Used to store ancestor hierarchy in top level callback
+// 用于在顶级回调中存储祖先层次结构
 function getTopLevelCallbackBookKeeping(
   topLevelType: DOMTopLevelEventType,
   nativeEvent: AnyNativeEvent,
@@ -116,6 +117,9 @@ function handleTopLevel(bookKeeping: BookKeepingInstance) {
   // It's important that we build the array of ancestors before calling any
   // event handlers, because event handlers can modify the DOM, leading to
   // inconsistencies with ReactMount's node cache. See #1105.
+  // 遍历层次结构，以防有任何嵌套组件。
+  // 在调用任何事件处理程序之前构建祖先的数组是很重要的，因为事件处理程序可以修改DOM，从而导致与ReactMount的节点缓存不一致。
+  // 看到# 1105。
   let ancestor = targetInst;
   do {
     if (!ancestor) {
@@ -250,6 +254,7 @@ function dispatchEventForPluginEventSystem(
   try {
     // Event queue being processed in the same cycle allows
     // `preventDefault`.
+    // 事件队列在相同的周期处理允许“preventDefault”。
     batchedEventUpdates(handleTopLevel, bookKeeping);
   } finally {
     releaseTopLevelCallbackBookKeeping(bookKeeping);
@@ -276,6 +281,8 @@ export function dispatchEvent(
     // component's mount, ignore it for now (that is, treat it as if it was an
     // event on a non-React tree). We might also consider queueing events and
     // dispatching them after the mount.
+    // 如果我们在提交组件的挂载之前获得了一个事件(例如:img onload)，那么现在就忽略它(也就是说，将它视为non-React树中的事件)。
+    // 我们还可以考虑对事件进行排队，并在挂载之后分派它们。
     targetInst = null;
   }
 

@@ -590,6 +590,9 @@ export function flushDiscreteUpdates() {
     // We're inside the commit phase or batched phase, so we can't
     // synchronously flush pending work. This is probably a nested event
     // dispatch triggered by a lifecycle/effect, like `el.focus()`. Exit.
+    // 我们处于提交阶段或批处理阶段，因此不能同步刷新挂起的工作。
+    // 这可能是一个由生命周期/效果触发的嵌套事件分派，比如' el.focus() '。
+    // 退出。
     return;
   }
   if (workPhase === RenderPhase) {
@@ -654,6 +657,7 @@ function flushPendingDiscreteUpdates() {
   if (rootsWithPendingDiscreteUpdates !== null) {
     // For each root with pending discrete updates, schedule a callback to
     // immediately flush them.
+    // 对于每个挂起的离散更新根，安排一个回调来立即刷新它们。
     const roots = rootsWithPendingDiscreteUpdates;
     rootsWithPendingDiscreteUpdates = null;
     roots.forEach((expirationTime, root) => {

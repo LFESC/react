@@ -7,12 +7,12 @@
  */
 
 import invariant from 'shared/invariant';
-import {rethrowCaughtError} from 'shared/ReactErrorUtils';
+import { rethrowCaughtError } from 'shared/ReactErrorUtils';
 
-import type {ReactSyntheticEvent} from './ReactSyntheticEventType';
+import type { ReactSyntheticEvent } from './ReactSyntheticEventType';
 import accumulateInto from './accumulateInto';
 import forEachAccumulated from './forEachAccumulated';
-import {executeDispatchesInOrder} from './EventPluginUtils';
+import { executeDispatchesInOrder } from './EventPluginUtils';
 
 /**
  * Internal queue of events that have accumulated their dispatches and are
@@ -26,7 +26,7 @@ let eventQueue: ?(Array<ReactSyntheticEvent> | ReactSyntheticEvent) = null;
  * @param {?object} event Synthetic event to be dispatched.
  * @private
  */
-const executeDispatchesAndRelease = function(event: ReactSyntheticEvent) {
+const executeDispatchesAndRelease = function (event: ReactSyntheticEvent) {
   if (event) {
     executeDispatchesInOrder(event);
 
@@ -35,7 +35,7 @@ const executeDispatchesAndRelease = function(event: ReactSyntheticEvent) {
     }
   }
 };
-const executeDispatchesAndReleaseTopLevel = function(e) {
+const executeDispatchesAndReleaseTopLevel = function (e) {
   return executeDispatchesAndRelease(e);
 };
 
@@ -48,6 +48,7 @@ export function runEventsInBatch(
 
   // Set `eventQueue` to null before processing it so that we can tell if more
   // events get enqueued while processing.
+  // 在处理之前将“eventQueue”设置为null，这样我们就可以知道在处理时是否有更多的事件进入队列。
   const processingEventQueue = eventQueue;
   eventQueue = null;
 
@@ -59,7 +60,7 @@ export function runEventsInBatch(
   invariant(
     !eventQueue,
     'processEventQueue(): Additional events were enqueued while processing ' +
-      'an event queue. Support for this has not yet been implemented.',
+    'an event queue. Support for this has not yet been implemented.',
   );
   // This would be a good time to rethrow if any of the event handlers threw.
   rethrowCaughtError();

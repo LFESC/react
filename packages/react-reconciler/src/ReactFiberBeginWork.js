@@ -2035,6 +2035,7 @@ function updateContextProvider(
     const changedBits = calculateChangedBits(context, newValue, oldValue);
     if (changedBits === 0) {
       // No change. Bailout early if children are the same.
+      // 没有变化。如果孩子都是一样的，那就早点退出。
       if (
         oldProps.children === newProps.children &&
         !hasLegacyContextChanged()
@@ -2048,6 +2049,7 @@ function updateContextProvider(
     } else {
       // The context value changed. Search for matching consumers and schedule
       // them to update.
+      // 上下文值改变了。搜索匹配的消费者并安排他们更新。
       propagateContextChange(
         workInProgress,
         context,
@@ -2077,6 +2079,17 @@ function updateContextConsumer(
   // reduce size and overhead. The separate object references context via
   // a property called "_context", which also gives us the ability to check
   // in DEV mode if this property exists or not and warn if it does not.
+  // 根据PROD或DEV模式，下面的上下文逻辑是不同的。在
+  // DEV模式，我们为上下文创建一个单独的对象。
+  // 消费者行为
+  // 类似于上下文的代理。
+  // 这个代理对象在PROD中添加了不必要的代码
+  // 所以我们使用旧的行为(上下文)。
+  // 消费者引用上下文)
+  // 减少规模和开销。
+  // 单独的对象通过
+  // 一个名为“_context”的属性，它也让我们能够检查
+  // 在DEV模式下，如果该属性存在或不存在，则发出警告。
   if (__DEV__) {
     if ((context: any)._context === undefined) {
       // This may be because it's a Context (rather than a Consumer).

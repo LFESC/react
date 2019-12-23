@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {HostComponent, HostText} from 'shared/ReactWorkTags';
+import { HostComponent, HostText } from 'shared/ReactWorkTags';
 import invariant from 'shared/invariant';
 
 const randomKey = Math.random()
@@ -21,6 +21,8 @@ export function precacheFiberNode(hostInst, node) {
 /**
  * Given a DOM node, return the closest ReactDOMComponent or
  * ReactDOMTextComponent instance ancestor.
+ * 给定一个DOM节点，返回最近的ReactDOMComponent或
+ * 祖先ReactDOMTextComponent实例。
  */
 export function getClosestInstanceFromNode(node) {
   if (node[internalInstanceKey]) {

@@ -13,15 +13,15 @@ import {
   injectEventPluginsByName,
   plugins,
 } from './EventPluginRegistry';
-import {getFiberCurrentPropsFromNode} from './EventPluginUtils';
+import { getFiberCurrentPropsFromNode } from './EventPluginUtils';
 import accumulateInto from './accumulateInto';
-import {runEventsInBatch} from './EventBatching';
+import { runEventsInBatch } from './EventBatching';
 
-import type {PluginModule} from './PluginModuleType';
-import type {ReactSyntheticEvent} from './ReactSyntheticEventType';
-import type {Fiber} from 'react-reconciler/src/ReactFiber';
-import type {AnyNativeEvent} from './PluginModuleType';
-import type {TopLevelType} from './TopLevelEventTypes';
+import type { PluginModule } from './PluginModuleType';
+import type { ReactSyntheticEvent } from './ReactSyntheticEventType';
+import type { Fiber } from 'react-reconciler/src/ReactFiber';
+import type { AnyNativeEvent } from './PluginModuleType';
+import type { TopLevelType } from './TopLevelEventTypes';
 
 function isInteractive(tag) {
   return (
@@ -125,6 +125,7 @@ export function getListener(inst: Fiber, registrationName: string) {
 /**
  * Allows registered plugins an opportunity to extract events from top-level
  * native browser events.
+ * 允许注册插件有机会从顶级本地浏览器事件中提取事件。
  *
  * @return {*} An accumulation of synthetic events.
  * @internal

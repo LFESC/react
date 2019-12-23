@@ -7,8 +7,8 @@
  * @flow
  */
 
-import {registrationNameDependencies} from 'events/EventPluginRegistry';
-import type {DOMTopLevelEventType} from 'events/TopLevelEventTypes';
+import { registrationNameDependencies } from 'events/EventPluginRegistry';
+import type { DOMTopLevelEventType } from 'events/TopLevelEventTypes';
 import {
   TOP_BLUR,
   TOP_CANCEL,
@@ -31,24 +31,35 @@ import isEventSupported from './isEventSupported';
 
 /**
  * Summary of `ReactBrowserEventEmitter` event handling:
+ * “ReactBrowserEventEmitter”事件处理总结:
  *
  *  - Top-level delegation is used to trap most native browser events. This
  *    may only occur in the main thread and is the responsibility of
  *    ReactDOMEventListener, which is injected and can therefore support
  *    pluggable event sources. This is the only work that occurs in the main
  *    thread.
+ *    顶级委托用于捕获大多数本机浏览器事件。
+ *    这可能只发生在主线程中，并且是ReactDOMEventListener的职责，它被注入，因此可以支持可插入的事件源。
+ *    这是主线程中发生的唯一工作。
  *
  *  - We normalize and de-duplicate events to account for browser quirks. This
  *    may be done in the worker thread.
+ *    我们对事件进行规范化和去复制，以解决浏览器的问题。
+ *    这可以在工作线程中完成。
  *
  *  - Forward these native events (with the associated top-level type used to
  *    trap it) to `EventPluginHub`, which in turn will ask plugins if they want
  *    to extract any synthetic events.
+ *    将这些本地事件(以及相关的用于捕获它的顶级类型)转发给“EventPluginHub”，
+ *    后者将反过来询问插件是否想要提取任何合成事件。
  *
  *  - The `EventPluginHub` will then process each event by annotating them with
  *    "dispatches", a sequence of listeners and IDs that care about that event.
+ *    然后，“EventPluginHub”将使用“dispatches”对每个事件进行注释，
+ *    dispatches是与该事件相关的侦听器和id序列。
  *
  *  - The `EventPluginHub` then dispatches the events.
+ *    “EventPluginHub”然后分发事件。
  *
  * Overview of React and the event system:
  *
@@ -89,9 +100,9 @@ const PossiblyWeakMap = typeof WeakMap === 'function' ? WeakMap : Map;
 const elementListeningSets:
   | WeakMap
   | Map<
-      Document | Element | Node,
-      Set<DOMTopLevelEventType | string>,
-    > = new PossiblyWeakMap();
+    Document | Element | Node,
+    Set<DOMTopLevelEventType | string>,
+  > = new PossiblyWeakMap();
 
 export function getListeningSetForElement(
   element: Document | Element | Node,
@@ -106,6 +117,7 @@ export function getListeningSetForElement(
 
 /**
  * We listen for bubbled touch events on the document object.
+ * 我们监听文档对象上冒泡的触摸事件。
  *
  * Firefox v8.01 (and possibly others) exhibited strange behavior when
  * mounting `onmousemove` events at some node that was not the document
@@ -190,4 +202,4 @@ export function isListeningToAllDependencies(
   return true;
 }
 
-export {setEnabled, isEnabled, trapBubbledEvent, trapCapturedEvent};
+export { setEnabled, isEnabled, trapBubbledEvent, trapCapturedEvent };

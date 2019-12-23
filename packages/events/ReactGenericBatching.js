@@ -17,13 +17,13 @@ import {
 // scheduled work and instead do synchronous work.
 
 // Defaults
-let batchedUpdatesImpl = function(fn, bookkeeping) {
+let batchedUpdatesImpl = function (fn, bookkeeping) {
   return fn(bookkeeping);
 };
-let discreteUpdatesImpl = function(fn, a, b, c) {
+let discreteUpdatesImpl = function (fn, a, b, c) {
   return fn(a, b, c);
 };
-let flushDiscreteUpdatesImpl = function() {};
+let flushDiscreteUpdatesImpl = function () { };
 let batchedEventUpdatesImpl = batchedUpdatesImpl;
 
 let isBatching = false;
@@ -62,6 +62,7 @@ export function batchedEventUpdates(fn, bookkeeping) {
   if (isBatching) {
     // If we are currently inside another batch, we need to wait until it
     // fully completes before restoring state.
+    // 如果我们当前在另一个批处理中，我们需要等待它完全完成后才能恢复状态。
     return fn(bookkeeping);
   }
   isBatching = true;

@@ -7,16 +7,16 @@
  * @flow
  */
 
-import type {DispatchConfig} from './ReactSyntheticEventType';
+import type { DispatchConfig } from './ReactSyntheticEventType';
 import type {
   AnyNativeEvent,
-  PluginName,
-  PluginModule,
+    PluginName,
+    PluginModule,
 } from './PluginModuleType';
 
 import invariant from 'shared/invariant';
 
-type NamesToPlugins = {[key: PluginName]: PluginModule<AnyNativeEvent>};
+type NamesToPlugins = { [key: PluginName]: PluginModule<AnyNativeEvent> };
 type EventPluginOrder = null | Array<PluginName>;
 
 /**
@@ -26,11 +26,13 @@ let eventPluginOrder: EventPluginOrder = null;
 
 /**
  * Injectable mapping from names to event plugin modules.
+ * 从名称到事件插件模块的可注入映射。
  */
 const namesToPlugins: NamesToPlugins = {};
 
 /**
  * Recomputes the plugin list using the injected plugins and plugin ordering.
+ * 使用注入的插件和插件顺序重新计算插件列表。
  *
  * @private
  */
@@ -45,7 +47,7 @@ function recomputePluginOrdering(): void {
     invariant(
       pluginIndex > -1,
       'EventPluginRegistry: Cannot inject event plugins that do not exist in ' +
-        'the plugin ordering, `%s`.',
+      'the plugin ordering, `%s`.',
       pluginName,
     );
     if (plugins[pluginIndex]) {
@@ -54,7 +56,7 @@ function recomputePluginOrdering(): void {
     invariant(
       pluginModule.extractEvents,
       'EventPluginRegistry: Event plugins must implement an `extractEvents` ' +
-        'method, but `%s` does not.',
+      'method, but `%s` does not.',
       pluginName,
     );
     plugins[pluginIndex] = pluginModule;
@@ -76,6 +78,7 @@ function recomputePluginOrdering(): void {
 
 /**
  * Publishes an event so that it can be dispatched by the supplied plugin.
+ * 发布一个事件，以便它可以由提供的插件来分派。
  *
  * @param {object} dispatchConfig Dispatch configuration for the event.
  * @param {object} PluginModule Plugin publishing the event.
@@ -90,7 +93,7 @@ function publishEventForPlugin(
   invariant(
     !eventNameDispatchConfigs.hasOwnProperty(eventName),
     'EventPluginHub: More than one plugin attempted to publish the same ' +
-      'event name, `%s`.',
+    'event name, `%s`.',
     eventName,
   );
   eventNameDispatchConfigs[eventName] = dispatchConfig;
@@ -134,7 +137,7 @@ function publishRegistrationName(
   invariant(
     !registrationNameModules[registrationName],
     'EventPluginHub: More than one plugin attempted to publish the same ' +
-      'registration name, `%s`.',
+    'registration name, `%s`.',
     registrationName,
   );
   registrationNameModules[registrationName] = pluginModule;
@@ -159,21 +162,25 @@ function publishRegistrationName(
 
 /**
  * Ordered list of injected plugins.
+ * 有序的注入插件列表。
  */
 export const plugins = [];
 
 /**
  * Mapping from event name to dispatch config
+ * 从事件名映射到分派配置
  */
 export const eventNameDispatchConfigs = {};
 
 /**
  * Mapping from registration name to plugin module
+ * 从注册名映射到插件模块
  */
 export const registrationNameModules = {};
 
 /**
  * Mapping from registration name to event name
+ * 从注册名映射到事件名
  */
 export const registrationNameDependencies = {};
 
@@ -190,6 +197,8 @@ export const possibleRegistrationNames = __DEV__ ? {} : (null: any);
  * Injects an ordering of plugins (by plugin name). This allows the ordering
  * to be decoupled from injection of the actual plugins so that ordering is
  * always deterministic regardless of packaging, on-the-fly injection, etc.
+ * 插入插件的顺序(按插件名)。
+ * 这使得排序与实际插件的注入解耦，因此无论打包、动态注入等如何，排序总是确定的。
  *
  * @param {array} InjectedEventPluginOrder
  * @internal
@@ -201,7 +210,7 @@ export function injectEventPluginOrder(
   invariant(
     !eventPluginOrder,
     'EventPluginRegistry: Cannot inject event plugin ordering more than ' +
-      'once. You are likely trying to load more than one copy of React.',
+    'once. You are likely trying to load more than one copy of React.',
   );
   // Clone the ordering so it cannot be dynamically mutated.
   eventPluginOrder = Array.prototype.slice.call(injectedEventPluginOrder);
@@ -211,8 +220,11 @@ export function injectEventPluginOrder(
 /**
  * Injects plugins to be used by `EventPluginHub`. The plugin names must be
  * in the ordering injected by `injectEventPluginOrder`.
+ * 注入被“EventPluginHub”使用的插件。
+ * 插件名必须是按照‘injectEventPluginOrder’的顺序注入的。
  *
  * Plugins can be injected as part of page initialization or on-the-fly.
+ * 插件可以作为页面初始化的一部分注入，也可以动态注入。
  *
  * @param {object} injectedNamesToPlugins Map from names to plugin modules.
  * @internal
@@ -234,7 +246,7 @@ export function injectEventPluginsByName(
       invariant(
         !namesToPlugins[pluginName],
         'EventPluginRegistry: Cannot inject two different event plugins ' +
-          'using the same name, `%s`.',
+        'using the same name, `%s`.',
         pluginName,
       );
       namesToPlugins[pluginName] = pluginModule;

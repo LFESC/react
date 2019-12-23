@@ -7,13 +7,13 @@
  * @flow
  */
 
-import type {ReactNodeList} from 'shared/ReactTypes';
-import type {RootTag} from 'shared/ReactRootTags';
+import type { ReactNodeList } from 'shared/ReactTypes';
+import type { RootTag } from 'shared/ReactRootTags';
 // TODO: This type is shared between the reconciler and ReactDOM, but will
 // eventually be lifted out to the renderer.
 import type {
   FiberRoot,
-  Batch as FiberRootBatch,
+    Batch as FiberRootBatch,
 } from 'react-reconciler/src/ReactFiberRoot';
 
 import '../shared/checkReact';
@@ -39,30 +39,30 @@ import {
   findHostInstanceWithWarning,
   flushPassiveEffects,
 } from 'react-reconciler/inline.dom';
-import {createPortal as createPortalImpl} from 'shared/ReactPortal';
-import {canUseDOM} from 'shared/ExecutionEnvironment';
-import {setBatchingImplementation} from 'events/ReactGenericBatching';
+import { createPortal as createPortalImpl } from 'shared/ReactPortal';
+import { canUseDOM } from 'shared/ExecutionEnvironment';
+import { setBatchingImplementation } from 'events/ReactGenericBatching';
 import {
   setRestoreImplementation,
   enqueueStateRestore,
   restoreStateIfNeeded,
 } from 'events/ReactControlledComponent';
-import {injection as EventPluginHubInjection} from 'events/EventPluginHub';
-import {runEventsInBatch} from 'events/EventBatching';
-import {eventNameDispatchConfigs} from 'events/EventPluginRegistry';
+import { injection as EventPluginHubInjection } from 'events/EventPluginHub';
+import { runEventsInBatch } from 'events/EventBatching';
+import { eventNameDispatchConfigs } from 'events/EventPluginRegistry';
 import {
   accumulateTwoPhaseDispatches,
   accumulateDirectDispatches,
 } from 'events/EventPropagators';
-import {LegacyRoot, ConcurrentRoot, BatchedRoot} from 'shared/ReactRootTags';
-import {has as hasInstance} from 'shared/ReactInstanceMap';
+import { LegacyRoot, ConcurrentRoot, BatchedRoot } from 'shared/ReactRootTags';
+import { has as hasInstance } from 'shared/ReactInstanceMap';
 import ReactVersion from 'shared/ReactVersion';
 import ReactSharedInternals from 'shared/ReactSharedInternals';
 import getComponentName from 'shared/getComponentName';
 import invariant from 'shared/invariant';
 import lowPriorityWarning from 'shared/lowPriorityWarning';
 import warningWithoutStack from 'shared/warningWithoutStack';
-import {enableStableConcurrentModeAPIs} from 'shared/ReactFeatureFlags';
+import { enableStableConcurrentModeAPIs } from 'shared/ReactFeatureFlags';
 
 import {
   getInstanceFromNode,
@@ -70,15 +70,15 @@ import {
   getFiberCurrentPropsFromNode,
   getClosestInstanceFromNode,
 } from './ReactDOMComponentTree';
-import {restoreControlledState} from './ReactDOMComponent';
-import {dispatchEvent} from '../events/ReactDOMEventListener';
+import { restoreControlledState } from './ReactDOMComponent';
+import { dispatchEvent } from '../events/ReactDOMEventListener';
 import {
   ELEMENT_NODE,
   COMMENT_NODE,
   DOCUMENT_NODE,
   DOCUMENT_FRAGMENT_NODE,
 } from '../shared/HTMLNodeType';
-import {ROOT_ATTRIBUTE_NAME} from '../shared/DOMProperty';
+import { ROOT_ATTRIBUTE_NAME } from '../shared/DOMProperty';
 
 const ReactCurrentOwner = ReactSharedInternals.ReactCurrentOwner;
 
@@ -101,7 +101,7 @@ if (__DEV__) {
     warningWithoutStack(
       false,
       'React depends on Map and Set built-in types. Make sure that you load a ' +
-        'polyfill in older browsers. https://fb.me/react-polyfills',
+      'polyfill in older browsers. https://fb.me/react-polyfills',
     );
   }
 
@@ -114,9 +114,9 @@ if (__DEV__) {
         warningWithoutStack(
           hostInstance.parentNode === container,
           'render(...): It looks like the React-rendered content of this ' +
-            'container was removed without using React. This is not ' +
-            'supported and will cause errors. Instead, call ' +
-            'ReactDOM.unmountComponentAtNode to empty a container.',
+          'container was removed without using React. This is not ' +
+          'supported and will cause errors. Instead, call ' +
+          'ReactDOM.unmountComponentAtNode to empty a container.',
         );
       }
     }
@@ -128,28 +128,28 @@ if (__DEV__) {
     warningWithoutStack(
       !hasNonRootReactChild || isRootRenderedBySomeReact,
       'render(...): Replacing React-rendered children with a new root ' +
-        'component. If you intended to update the children of this node, ' +
-        'you should instead have the existing children update their state ' +
-        'and render the new components instead of calling ReactDOM.render.',
+      'component. If you intended to update the children of this node, ' +
+      'you should instead have the existing children update their state ' +
+      'and render the new components instead of calling ReactDOM.render.',
     );
 
     warningWithoutStack(
       container.nodeType !== ELEMENT_NODE ||
-        !((container: any): Element).tagName ||
-        ((container: any): Element).tagName.toUpperCase() !== 'BODY',
+      !((container: any): Element).tagName ||
+      ((container: any): Element).tagName.toUpperCase() !== 'BODY',
       'render(): Rendering components directly into document.body is ' +
-        'discouraged, since its children are often manipulated by third-party ' +
-        'scripts and browser extensions. This may lead to subtle ' +
-        'reconciliation issues. Try rendering into a container element created ' +
-        'for your app.',
+      'discouraged, since its children are often manipulated by third-party ' +
+      'scripts and browser extensions. This may lead to subtle ' +
+      'reconciliation issues. Try rendering into a container element created ' +
+      'for your app.',
     );
   };
 
-  warnOnInvalidCallback = function(callback: mixed, callerName: string) {
+  warnOnInvalidCallback = function (callback: mixed, callerName: string) {
     warningWithoutStack(
       callback === null || typeof callback === 'function',
       '%s(...): Expected the last optional `callback` argument to be a ' +
-        'function. Instead received: %s.',
+      'function. Instead received: %s.',
       callerName,
       callback,
     );
@@ -160,13 +160,13 @@ setRestoreImplementation(restoreControlledState);
 
 export type DOMContainer =
   | (Element & {
-      _reactRootContainer: ?(_ReactRoot | _ReactSyncRoot),
-      _reactHasBeenPassedToCreateRootDEV: ?boolean,
-    })
+    _reactRootContainer: ?(_ReactRoot | _ReactSyncRoot),
+    _reactHasBeenPassedToCreateRootDEV: ?boolean,
+  })
   | (Document & {
-      _reactRootContainer: ?(_ReactRoot | _ReactSyncRoot),
-      _reactHasBeenPassedToCreateRootDEV: ?boolean,
-    });
+    _reactRootContainer: ?(_ReactRoot | _ReactSyncRoot),
+    _reactHasBeenPassedToCreateRootDEV: ?boolean,
+  });
 
 type Batch = FiberRootBatch & {
   render(children: ReactNodeList): Work,
@@ -206,7 +206,7 @@ function ReactBatch(root: _ReactRoot | _ReactSyncRoot) {
   this._children = null;
   this._defer = true;
 }
-ReactBatch.prototype.render = function(children: ReactNodeList) {
+ReactBatch.prototype.render = function (children: ReactNodeList) {
   invariant(
     this._defer,
     'batch.render: Cannot render a batch that already committed.',
@@ -226,7 +226,7 @@ ReactBatch.prototype.render = function(children: ReactNodeList) {
   );
   return work;
 };
-ReactBatch.prototype.then = function(onComplete: () => mixed) {
+ReactBatch.prototype.then = function (onComplete: () => mixed) {
   if (this._didComplete) {
     onComplete();
     return;
@@ -237,7 +237,7 @@ ReactBatch.prototype.then = function(onComplete: () => mixed) {
   }
   callbacks.push(onComplete);
 };
-ReactBatch.prototype.commit = function() {
+ReactBatch.prototype.commit = function () {
   const internalRoot = this._root._internalRoot;
   let firstBatch = internalRoot.firstBatch;
   invariant(
@@ -300,7 +300,7 @@ ReactBatch.prototype.commit = function() {
     firstBatch.render(firstBatch._children);
   }
 };
-ReactBatch.prototype._onComplete = function() {
+ReactBatch.prototype._onComplete = function () {
   if (this._didComplete) {
     return;
   }
@@ -330,7 +330,7 @@ function ReactWork() {
   // list of Work objects.
   this._onCommit = this._onCommit.bind(this);
 }
-ReactWork.prototype.then = function(onCommit: () => mixed): void {
+ReactWork.prototype.then = function (onCommit: () => mixed): void {
   if (this._didCommit) {
     onCommit();
     return;
@@ -341,7 +341,7 @@ ReactWork.prototype.then = function(onCommit: () => mixed): void {
   }
   callbacks.push(onCommit);
 };
-ReactWork.prototype._onCommit = function(): void {
+ReactWork.prototype._onCommit = function (): void {
   if (this._didCommit) {
     return;
   }
@@ -356,7 +356,7 @@ ReactWork.prototype._onCommit = function(): void {
     invariant(
       typeof callback === 'function',
       'Invalid argument passed as callback. Expected a function. Instead ' +
-        'received: %s',
+      'received: %s',
       callback,
     );
     callback();
@@ -378,7 +378,7 @@ function ReactRoot(container: DOMContainer, hydrate: boolean) {
   this._internalRoot = root;
 }
 
-ReactRoot.prototype.render = ReactSyncRoot.prototype.render = function(
+ReactRoot.prototype.render = ReactSyncRoot.prototype.render = function (
   children: ReactNodeList,
   callback: ?() => mixed,
 ): Work {
@@ -395,7 +395,7 @@ ReactRoot.prototype.render = ReactSyncRoot.prototype.render = function(
   return work;
 };
 
-ReactRoot.prototype.unmount = ReactSyncRoot.prototype.unmount = function(
+ReactRoot.prototype.unmount = ReactSyncRoot.prototype.unmount = function (
   callback: ?() => mixed,
 ): Work {
   const root = this._internalRoot;
@@ -412,7 +412,7 @@ ReactRoot.prototype.unmount = ReactSyncRoot.prototype.unmount = function(
 };
 
 // Sync roots cannot create batches. Only concurrent ones.
-ReactRoot.prototype.createBatch = function(): Batch {
+ReactRoot.prototype.createBatch = function (): Batch {
   const batch = new ReactBatch(this);
   const expirationTime = batch._expirationTime;
 
@@ -510,8 +510,8 @@ function legacyCreateRootFromDOMContainer(
           warningWithoutStack(
             false,
             'render(): Target node has markup rendered by React, but there ' +
-              'are unrelated nodes as well. This is most commonly caused by ' +
-              'white-space inserted around server-rendered markup.',
+            'are unrelated nodes as well. This is most commonly caused by ' +
+            'white-space inserted around server-rendered markup.',
           );
         }
       }
@@ -524,8 +524,8 @@ function legacyCreateRootFromDOMContainer(
       lowPriorityWarning(
         false,
         'render(): Calling ReactDOM.render() to hydrate server-rendered markup ' +
-          'will stop working in React v17. Replace the ReactDOM.render() call ' +
-          'with ReactDOM.hydrate() if you want React to attach to the server HTML.',
+        'will stop working in React v17. Replace the ReactDOM.render() call ' +
+        'with ReactDOM.hydrate() if you want React to attach to the server HTML.',
       );
     }
   }
@@ -559,7 +559,7 @@ function legacyRenderSubtreeIntoContainer(
     fiberRoot = root._internalRoot;
     if (typeof callback === 'function') {
       const originalCallback = callback;
-      callback = function() {
+      callback = function () {
         const instance = getPublicRootInstance(fiberRoot);
         originalCallback.call(instance);
       };
@@ -572,7 +572,7 @@ function legacyRenderSubtreeIntoContainer(
     fiberRoot = root._internalRoot;
     if (typeof callback === 'function') {
       const originalCallback = callback;
-      callback = function() {
+      callback = function () {
         const instance = getPublicRootInstance(fiberRoot);
         originalCallback.call(instance);
       };
@@ -610,10 +610,10 @@ const ReactDOM: Object = {
         warningWithoutStack(
           warnedAboutRefsInRender,
           '%s is accessing findDOMNode inside its render(). ' +
-            'render() should be a pure function of props and state. It should ' +
-            'never access something that requires stale data from the previous ' +
-            'render, such as refs. Move this logic to componentDidMount and ' +
-            'componentDidUpdate instead.',
+          'render() should be a pure function of props and state. It should ' +
+          'never access something that requires stale data from the previous ' +
+          'render, such as refs. Move this logic to componentDidMount and ' +
+          'componentDidUpdate instead.',
           getComponentName(owner.type) || 'A component',
         );
         owner.stateNode._warnedAboutRefsInRender = true;
@@ -640,8 +640,8 @@ const ReactDOM: Object = {
       warningWithoutStack(
         !container._reactHasBeenPassedToCreateRootDEV,
         'You are calling ReactDOM.hydrate() on a container that was previously ' +
-          'passed to ReactDOM.%s(). This is not supported. ' +
-          'Did you mean to call createRoot(container, {hydrate: true}).render(element)?',
+        'passed to ReactDOM.%s(). This is not supported. ' +
+        'Did you mean to call createRoot(container, {hydrate: true}).render(element)?',
         enableStableConcurrentModeAPIs ? 'createRoot' : 'unstable_createRoot',
       );
     }
@@ -668,8 +668,8 @@ const ReactDOM: Object = {
       warningWithoutStack(
         !container._reactHasBeenPassedToCreateRootDEV,
         'You are calling ReactDOM.render() on a container that was previously ' +
-          'passed to ReactDOM.%s(). This is not supported. ' +
-          'Did you mean to call root.render(element)?',
+        'passed to ReactDOM.%s(). This is not supported. ' +
+        'Did you mean to call root.render(element)?',
         enableStableConcurrentModeAPIs ? 'createRoot' : 'unstable_createRoot',
       );
     }
@@ -715,7 +715,7 @@ const ReactDOM: Object = {
       warningWithoutStack(
         !container._reactHasBeenPassedToCreateRootDEV,
         'You are calling ReactDOM.unmountComponentAtNode() on a container that was previously ' +
-          'passed to ReactDOM.%s(). This is not supported. Did you mean to call root.unmount()?',
+        'passed to ReactDOM.%s(). This is not supported. Did you mean to call root.unmount()?',
         enableStableConcurrentModeAPIs ? 'createRoot' : 'unstable_createRoot',
       );
     }
@@ -727,7 +727,7 @@ const ReactDOM: Object = {
         warningWithoutStack(
           !renderedByDifferentReact,
           "unmountComponentAtNode(): The node you're attempting to unmount " +
-            'was rendered by another copy of React.',
+          'was rendered by another copy of React.',
         );
       }
 
@@ -754,12 +754,12 @@ const ReactDOM: Object = {
         warningWithoutStack(
           !hasNonRootReactChild,
           "unmountComponentAtNode(): The node you're attempting to unmount " +
-            'was rendered by React and is not a top-level container. %s',
+          'was rendered by React and is not a top-level container. %s',
           isContainerReactRoot
             ? 'You may have accidentally passed in a React root node instead ' +
-              'of its container.'
+            'of its container.'
             : 'Instead, have the parent component update its state and ' +
-              'rerender in order to remove this component.',
+            'rerender in order to remove this component.',
         );
       }
 
@@ -775,9 +775,9 @@ const ReactDOM: Object = {
       lowPriorityWarning(
         false,
         'The ReactDOM.unstable_createPortal() alias has been deprecated, ' +
-          'and will be removed in React 17+. Update your code to use ' +
-          'ReactDOM.createPortal() instead. It has the exact same API, ' +
-          'but without the "unstable_" prefix.',
+        'and will be removed in React 17+. Update your code to use ' +
+        'ReactDOM.createPortal() instead. It has the exact same API, ' +
+        'but without the "unstable_" prefix.',
       );
     }
     return createPortal(...args);
@@ -863,7 +863,7 @@ function warnIfReactDOMContainerInDEV(container) {
     warningWithoutStack(
       !container._reactRootContainer,
       'You are calling ReactDOM.%s() on a container that was previously ' +
-        'passed to ReactDOM.render(). This is not supported.',
+      'passed to ReactDOM.render(). This is not supported.',
       enableStableConcurrentModeAPIs ? 'createRoot' : 'unstable_createRoot',
     );
     container._reactHasBeenPassedToCreateRootDEV = true;
@@ -895,12 +895,12 @@ if (__DEV__) {
       if (/^(https?|file):$/.test(protocol)) {
         console.info(
           '%cDownload the React DevTools ' +
-            'for a better development experience: ' +
-            'https://fb.me/react-devtools' +
-            (protocol === 'file:'
-              ? '\nYou might need to use a local HTTP server (instead of file://): ' +
-                'https://fb.me/react-devtools-faq'
-              : ''),
+          'for a better development experience: ' +
+          'https://fb.me/react-devtools' +
+          (protocol === 'file:'
+            ? '\nYou might need to use a local HTTP server (instead of file://): ' +
+            'https://fb.me/react-devtools-faq'
+            : ''),
           'font-weight:bold',
         );
       }

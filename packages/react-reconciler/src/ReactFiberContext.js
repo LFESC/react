@@ -7,19 +7,19 @@
  * @flow
  */
 
-import type {Fiber} from './ReactFiber';
-import type {StackCursor} from './ReactFiberStack';
+import type { Fiber } from './ReactFiber';
+import type { StackCursor } from './ReactFiberStack';
 
-import {isFiberMounted} from 'react-reconciler/reflection';
-import {ClassComponent, HostRoot} from 'shared/ReactWorkTags';
+import { isFiberMounted } from 'react-reconciler/reflection';
+import { ClassComponent, HostRoot } from 'shared/ReactWorkTags';
 import getComponentName from 'shared/getComponentName';
 import invariant from 'shared/invariant';
 import warningWithoutStack from 'shared/warningWithoutStack';
 import checkPropTypes from 'prop-types/checkPropTypes';
 
-import {setCurrentPhase, getCurrentFiberStackInDev} from './ReactCurrentFiber';
-import {startPhaseTimer, stopPhaseTimer} from './ReactDebugFiberPerf';
-import {createCursor, push, pop} from './ReactFiberStack';
+import { setCurrentPhase, getCurrentFiberStackInDev } from './ReactCurrentFiber';
+import { startPhaseTimer, stopPhaseTimer } from './ReactDebugFiberPerf';
+import { createCursor, push, pop } from './ReactFiberStack';
 
 let warnedAboutMissingGetChildContext;
 
@@ -33,8 +33,10 @@ if (__DEV__) {
 }
 
 // A cursor to the current merged context object on the stack.
+// 指向堆栈上当前合并上下文对象的指针。
 let contextStackCursor: StackCursor<Object> = createCursor(emptyContextObject);
 // A cursor to a boolean indicating whether the context has changed.
+// 一个指示上下文是否改变的布尔值的指针。
 let didPerformWorkStackCursor: StackCursor<boolean> = createCursor(false);
 // Keep track of the previous context object that was on the stack.
 // We use this to get access to the parent context after we have already
@@ -51,6 +53,9 @@ function getUnmaskedContext(
     // we may have already pushed its own child context on the stack. A context
     // provider should not "see" its own child context. Therefore we read the
     // previous (parent) context instead for a context provider.
+    // 如果 fiber 本身是一个上下文提供程序，当我们读取它的上下文时，我们可能已经将它自己的子上下文压入堆栈。
+    // 上下文提供者不应该“看到”自己的子上下文。
+    // 因此，我们读取以前的(父)上下文而不是上下文提供者。
     return previousContext;
   }
   return contextStackCursor.current;
@@ -79,6 +84,9 @@ function getMaskedContext(
   // Avoid recreating masked context unless unmasked context has changed.
   // Failing to do this will result in unnecessary calls to componentWillReceiveProps.
   // This may trigger infinite loops if componentWillReceiveProps calls setState.
+  // 避免重新创建 masked 的上下文，除非 unmasked 的上下文已经更改。
+  // 如果不这样做，就会导致对componentWillReceiveProps的不必要调用。
+  // 如果componentWillReceiveProps调用setState，则可能触发无限循环。
   const instance = workInProgress.stateNode;
   if (
     instance &&
@@ -105,6 +113,8 @@ function getMaskedContext(
 
   // Cache unmasked context so we can avoid recreating masked context unless necessary.
   // Context is created before the class component is instantiated so check for instance.
+  // 缓存非掩码上下文，这样我们可以避免重新创建掩码上下文，除非有必要。
+  // Context是在类组件实例化之前创建的，所以检查实例。
   if (instance) {
     cacheContext(workInProgress, unmaskedContext, context);
   }
@@ -139,7 +149,7 @@ function pushTopLevelContextObject(
   invariant(
     contextStackCursor.current === emptyContextObject,
     'Unexpected context found on stack. ' +
-      'This error is likely caused by a bug in React. Please file an issue.',
+    'This error is likely caused by a bug in React. Please file an issue.',
   );
 
   push(contextStackCursor, context, fiber);
@@ -165,8 +175,8 @@ function processChildContext(
         warningWithoutStack(
           false,
           '%s.childContextTypes is specified but there is no getChildContext() method ' +
-            'on the instance. You can either define getChildContext() on %s or remove ' +
-            'childContextTypes from it.',
+          'on the instance. You can either define getChildContext() on %s or remove ' +
+          'childContextTypes from it.',
           componentName,
           componentName,
         );
@@ -209,7 +219,7 @@ function processChildContext(
     );
   }
 
-  return {...parentContext, ...childContext};
+  return { ...parentContext, ...childContext };
 }
 
 function pushContextProvider(workInProgress: Fiber): boolean {
@@ -217,12 +227,16 @@ function pushContextProvider(workInProgress: Fiber): boolean {
   // We push the context as early as possible to ensure stack integrity.
   // If the instance does not exist yet, we will push null at first,
   // and replace it on the stack later when invalidating the context.
+  // 我们尽可能早地推送上下文以确保堆栈的完整性。
+  // 如果实例还不存在，我们将首先推送null，然后在使上下文无效时在堆栈上替换它。
   const memoizedMergedChildContext =
     (instance && instance.__reactInternalMemoizedMergedChildContext) ||
     emptyContextObject;
 
   // Remember the parent context so we can merge with it later.
   // Inherit the parent's did-perform-work value to avoid inadvertently blocking updates.
+  // 记住父上下文，以便我们以后可以合并它。
+  // 继承父进程的did-perform-work值，以避免无意中阻塞更新。
   previousContext = contextStackCursor.current;
   push(contextStackCursor, memoizedMergedChildContext, workInProgress);
   push(
@@ -243,13 +257,16 @@ function invalidateContextProvider(
   invariant(
     instance,
     'Expected to have an instance by this point. ' +
-      'This error is likely caused by a bug in React. Please file an issue.',
+    'This error is likely caused by a bug in React. Please file an issue.',
   );
 
   if (didChange) {
     // Merge parent and own context.
     // Skip this if we're not updating due to sCU.
     // This avoids unnecessarily recomputing memoized values.
+    // 合并父进程和自己的上下文。
+    // 如果我们因为sCU而没有更新，请跳过这个。
+    // 这避免了不必要的重新计算记忆值。
     const mergedContext = processChildContext(
       workInProgress,
       type,
@@ -259,9 +276,12 @@ function invalidateContextProvider(
 
     // Replace the old (or empty) context with the new one.
     // It is important to unwind the context in the reverse order.
+    // 用新的上下文替换旧的(或空的)上下文。
+    // 按相反的顺序展开上下文是很重要的。
     pop(didPerformWorkStackCursor, workInProgress);
     pop(contextStackCursor, workInProgress);
     // Now push the new context and mark that it has changed.
+    // 现在推动新的上下文并标记它已经改变。
     push(contextStackCursor, mergedContext, workInProgress);
     push(didPerformWorkStackCursor, didChange, workInProgress);
   } else {
@@ -276,7 +296,7 @@ function findCurrentUnmaskedContext(fiber: Fiber): Object {
   invariant(
     isFiberMounted(fiber) && fiber.tag === ClassComponent,
     'Expected subtree parent to be a mounted class component. ' +
-      'This error is likely caused by a bug in React. Please file an issue.',
+    'This error is likely caused by a bug in React. Please file an issue.',
   );
 
   let node = fiber;
@@ -297,7 +317,7 @@ function findCurrentUnmaskedContext(fiber: Fiber): Object {
   invariant(
     false,
     'Found unexpected detached subtree parent. ' +
-      'This error is likely caused by a bug in React. Please file an issue.',
+    'This error is likely caused by a bug in React. Please file an issue.',
   );
 }
 

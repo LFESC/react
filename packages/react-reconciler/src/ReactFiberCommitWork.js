@@ -741,6 +741,8 @@ function commitDetachRef(current: Fiber) {
 // User-originating errors (lifecycles and refs) should not interrupt
 // deletion, so don't let them throw. Host-originating errors should
 // interrupt deletion, so it's okay
+// 用户发起的错误(生命周期和引用)不应该中断删除，所以不要让它们抛出。
+// 主机发起的错误应该会中断删除，所以没有问题
 function commitUnmount(current: Fiber): void {
   onCommitUnmount(current);
 
@@ -805,15 +807,22 @@ function commitNestedUnmounts(root: Fiber): void {
   // call anyway. We also want to call componentWillUnmount on all
   // composites before this host node is removed from the tree. Therefore
   // we do an inner loop while we're still inside the host node.
+  // 当我们在删除的主机节点内部时，我们不想在内部节点上调用removeChild，因为它们已经被顶部调用删除了。
+  // 我们还希望在从树中删除此主机节点之前，在所有组合上调用componentWillUnmount。
+  // 因此，我们在主机节点内部执行一个内部循环。
   let node: Fiber = root;
   while (true) {
     commitUnmount(node);
     // Visit children because they may contain more composite or host nodes.
     // Skip portals because commitUnmount() currently visits them recursively.
+    // 访问子节点，因为它们可能包含更多的组合节点或主机节点。
+    // 跳过 portals，因为commitUnmount()当前会递归地访问它们。
     if (
       node.child !== null &&
       // If we use mutation we drill down into portals using commitUnmount above.
       // If we don't use mutation we drill down into portals here instead.
+      // 如果我们使用变异，我们使用上面的commitUnmount深入到 portal。
+      // 如果我们不使用突变，我们就在这里深入研究 portal。
       (!supportsMutation || node.tag !== HostPortal)
     ) {
       node.child.return = node;
@@ -1103,6 +1112,7 @@ function unmountHostComponents(current): void {
       commitNestedUnmounts(node);
       // After all the children have unmounted, it is now safe to remove the
       // node from the tree.
+      // 在所有的子节点都卸载之后，现在就可以安全地从树中删除节点了。
       if (currentParentIsContainer) {
         removeChildFromContainer(
           ((currentParent: any): Container),
@@ -1115,6 +1125,7 @@ function unmountHostComponents(current): void {
         );
       }
       // Don't visit children because we already visited them.
+      // 不要去访问 children，因为我们已经访问过它们了。
     } else if (
       enableSuspenseServerRenderer &&
       node.tag === DehydratedSuspenseComponent
@@ -1135,9 +1146,12 @@ function unmountHostComponents(current): void {
       if (node.child !== null) {
         // When we go into a portal, it becomes the parent to remove from.
         // We will reassign it back when we pop the portal on the way up.
+        // 当我们进入一个 portal 时，它就变成了要删除的父类。
+        // 当我们向上弹出 portal 时，我们将重新分配它。
         currentParent = node.stateNode.containerInfo;
         currentParentIsContainer = true;
         // Visit children because portals might contain host components.
+        // 访问孩子，因为门户可能包含主机组件。
         node.child.return = node;
         node = node.child;
         continue;
@@ -1145,6 +1159,7 @@ function unmountHostComponents(current): void {
     } else {
       commitUnmount(node);
       // Visit children because we may find more host components below.
+      // 访问 children，因为我们可能在下面找到更多的主机组件。
       if (node.child !== null) {
         node.child.return = node;
         node = node.child;
@@ -1162,6 +1177,8 @@ function unmountHostComponents(current): void {
       if (node.tag === HostPortal) {
         // When we go out of the portal, we need to restore the parent.
         // Since we don't keep a stack of them, we will search for it.
+        // 当我们离开 portal 时，我们需要恢复父节点。
+        // 既然我们没有存一大堆，就去找吧。
         currentParentIsValid = false;
       }
     }

@@ -338,6 +338,7 @@ export function prepareToReadContext(
   }
 
   // Reset the work-in-progress list
+  // 重置正在进行的工作列表
   workInProgress.contextDependencies = null;
 }
 

@@ -1047,6 +1047,8 @@ function renderRoot(
         // If we have exceeded the minimum loading delay, which probably
         // means we have shown a spinner already, we might have to suspend
         // a bit longer to ensure that the spinner is shown for enough time.
+        // 如果我们已经超过了最小加载延迟，这可能意味着我们已经显示了一个 spinner，
+        // 我们可能不得不暂停一段时间，以确保 spinner 显示足够的时间。
         const msUntilTimeout = computeMsUntilSuspenseLoadingDelay(
           workInProgressRootLatestProcessedExpirationTime,
           expirationTime,
@@ -2117,6 +2119,7 @@ function computeMsUntilSuspenseLoadingDelay(
   const busyDelayMs = (suspenseConfig.busyDelayMs: any) | 0;
 
   // Compute the time until this render pass would expire.
+  // 计算这个渲染通道过期的时间。
   const currentTimeMs: number = now();
   const eventTimeMs: number = inferTimeFromExpirationTime(
     mostRecentEventTime,
@@ -2126,6 +2129,7 @@ function computeMsUntilSuspenseLoadingDelay(
   if (timeElapsed <= busyDelayMs) {
     // If we haven't yet waited longer than the initial delay, we don't
     // have to wait any additional time.
+    // 如果我们的等待时间还没有超过原定的延误时间，我们就不必再等了。
     return 0;
   }
   const msUntilTimeout = busyDelayMs + busyMinDurationMs - timeElapsed;

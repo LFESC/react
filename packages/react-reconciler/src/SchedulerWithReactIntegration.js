@@ -57,6 +57,9 @@ const fakeCallbackNode = {};
 // Except for NoPriority, these correspond to Scheduler priorities. We use
 // ascending numbers so we can compare them like numbers. They start at 90 to
 // avoid clashing with Scheduler's priorities.
+// 除了NoPriority之外，这些都对应于调度器优先级。
+// 我们使用升序数字，这样我们可以像比较数字一样比较它们。
+// 它们从90开始，以避免与调度程序的优先级冲突。
 export const ImmediatePriority: ReactPriorityLevel = 99;
 export const UserBlockingPriority: ReactPriorityLevel = 98;
 export const NormalPriority: ReactPriorityLevel = 97;

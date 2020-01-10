@@ -7,17 +7,17 @@
  * @flow
  */
 
-import type {ReactContext} from 'shared/ReactTypes';
-import type {SideEffectTag} from 'shared/ReactSideEffectTags';
-import type {Fiber} from './ReactFiber';
-import type {ExpirationTime} from './ReactFiberExpirationTime';
-import type {HookEffectTag} from './ReactHookEffectTags';
-import type {SuspenseConfig} from './ReactFiberSuspenseConfig';
+import type { ReactContext } from 'shared/ReactTypes';
+import type { SideEffectTag } from 'shared/ReactSideEffectTags';
+import type { Fiber } from './ReactFiber';
+import type { ExpirationTime } from './ReactFiberExpirationTime';
+import type { HookEffectTag } from './ReactHookEffectTags';
+import type { SuspenseConfig } from './ReactFiberSuspenseConfig';
 
 import ReactSharedInternals from 'shared/ReactSharedInternals';
 
-import {NoWork} from './ReactFiberExpirationTime';
-import {readContext} from './ReactFiberNewContext';
+import { NoWork } from './ReactFiberExpirationTime';
+import { readContext } from './ReactFiberNewContext';
 import {
   Update as UpdateEffect,
   Passive as PassiveEffect,
@@ -42,11 +42,11 @@ import invariant from 'shared/invariant';
 import warning from 'shared/warning';
 import getComponentName from 'shared/getComponentName';
 import is from 'shared/objectIs';
-import {markWorkInProgressReceivedUpdate} from './ReactFiberBeginWork';
-import {revertPassiveEffectsChange} from 'shared/ReactFeatureFlags';
-import {requestCurrentSuspenseConfig} from './ReactFiberSuspenseConfig';
+import { markWorkInProgressReceivedUpdate } from './ReactFiberBeginWork';
+import { revertPassiveEffectsChange } from 'shared/ReactFeatureFlags';
+import { requestCurrentSuspenseConfig } from './ReactFiberSuspenseConfig';
 
-const {ReactCurrentDispatcher} = ReactSharedInternals;
+const { ReactCurrentDispatcher } = ReactSharedInternals;
 
 export type Dispatcher = {
   readContext<T>(
@@ -63,7 +63,7 @@ export type Dispatcher = {
     context: ReactContext<T>,
     observedBits: void | number | boolean,
   ): T,
-  useRef<T>(initialValue: T): {current: T},
+  useRef<T>(initialValue: T): { current: T },
   useEffect(
     create: () => (() => void) | void,
     deps: Array<mixed> | void | null,
@@ -75,7 +75,7 @@ export type Dispatcher = {
   useCallback<T>(callback: T, deps: Array<mixed> | void | null): T,
   useMemo<T>(nextCreate: () => T, deps: Array<mixed> | void | null): T,
   useImperativeHandle<T>(
-    ref: {current: T | null} | ((inst: T | null) => mixed) | null | void,
+    ref: { current: T | null } | ((inst: T | null) => mixed) | null | void,
     create: () => T,
     deps: Array<mixed> | void | null,
   ): void,
@@ -94,8 +94,8 @@ type Update<S, A> = {
 type UpdateQueue<S, A> = {
   last: Update<S, A> | null,
   dispatch: (A => mixed) | null,
-  lastRenderedReducer: ((S, A) => S) | null,
-  lastRenderedState: S | null,
+    lastRenderedReducer: ((S, A) => S) | null,
+      lastRenderedState: S | null,
 };
 
 export type HookType =
@@ -170,12 +170,13 @@ let sideEffectTag: SideEffectTag = 0;
 // completes without re-rendering.
 
 // Whether an update was scheduled during the currently executing render pass.
+// 在当前执行的渲染传递中是否调度了更新。
 let didScheduleRenderPhaseUpdate: boolean = false;
 // Lazily created map of render-phase updates
 let renderPhaseUpdates: Map<
   UpdateQueue<any, any>,
   Update<any, any>,
-> | null = null;
+  > | null = null;
 // Counter to prevent infinite loops.
 let numberOfReRenders: number = 0;
 const RE_RENDER_LIMIT = 25;
@@ -227,7 +228,7 @@ function checkDepsAreArrayDev(deps: mixed) {
       warning(
         false,
         '%s received a final argument that is not an array (instead, received `%s`). When ' +
-          'specified, the final argument must be an array.',
+        'specified, the final argument must be an array.',
         currentHookNameInDev,
         typeof deps,
       );
@@ -271,12 +272,12 @@ function warnOnHookMismatchInDev(currentHookName: HookType) {
         warning(
           false,
           'React has detected a change in the order of Hooks called by %s. ' +
-            'This will lead to bugs and errors if not fixed. ' +
-            'For more information, read the Rules of Hooks: https://fb.me/rules-of-hooks\n\n' +
-            '   Previous render            Next render\n' +
-            '   ------------------------------------------------------\n' +
-            '%s' +
-            '   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n',
+          'This will lead to bugs and errors if not fixed. ' +
+          'For more information, read the Rules of Hooks: https://fb.me/rules-of-hooks\n\n' +
+          '   Previous render            Next render\n' +
+          '   ------------------------------------------------------\n' +
+          '%s' +
+          '   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n',
           componentName,
           table,
         );
@@ -289,11 +290,11 @@ function throwInvalidHookError() {
   invariant(
     false,
     'Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for' +
-      ' one of the following reasons:\n' +
-      '1. You might have mismatching versions of React and the renderer (such as React DOM)\n' +
-      '2. You might be breaking the Rules of Hooks\n' +
-      '3. You might have more than one copy of React in the same app\n' +
-      'See https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem.',
+    ' one of the following reasons:\n' +
+    '1. You might have mismatching versions of React and the renderer (such as React DOM)\n' +
+    '2. You might be breaking the Rules of Hooks\n' +
+    '3. You might have more than one copy of React in the same app\n' +
+    'See https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem.',
   );
 }
 
@@ -313,8 +314,8 @@ function areHookInputsEqual(
       warning(
         false,
         '%s received a final argument during this render, but not during ' +
-          'the previous render. Even though the final argument is optional, ' +
-          'its type cannot change between renders.',
+        'the previous render. Even though the final argument is optional, ' +
+        'its type cannot change between renders.',
         currentHookNameInDev,
       );
     }
@@ -328,9 +329,9 @@ function areHookInputsEqual(
       warning(
         false,
         'The final argument passed to %s changed size between renders. The ' +
-          'order and size of this array must remain constant.\n\n' +
-          'Previous: %s\n' +
-          'Incoming: %s',
+        'order and size of this array must remain constant.\n\n' +
+        'Previous: %s\n' +
+        'Incoming: %s',
         currentHookNameInDev,
         `[${prevDeps.join(', ')}]`,
         `[${nextDeps.join(', ')}]`,
@@ -441,6 +442,7 @@ export function renderWithHooks(
 
   // We can assume the previous dispatcher is always this one, since we set it
   // at the beginning of the render phase and there's no re-entrancy.
+  // 我们可以假设之前的dispatcher总是这个，因为我们在渲染阶段的开始就设置了它，并且没有可重入性。
   ReactCurrentDispatcher.current = ContextOnlyDispatcher;
 
   const renderedWork: Fiber = (currentlyRenderingFiber: any);
@@ -456,6 +458,7 @@ export function renderWithHooks(
 
   // This check uses currentHook so that it works the same in DEV and prod bundles.
   // hookTypesDev could catch more cases (e.g. context) but only in DEV bundles.
+  // 这个检查使用currentHook，所以它在DEV和prod包中工作是一样的，hookTypesDev可以捕获更多的情况(比如上下文)，但只在DEV包中。
   const didRenderTooFewHooks =
     currentHook !== null && currentHook.next !== null;
 
@@ -486,7 +489,7 @@ export function renderWithHooks(
   invariant(
     !didRenderTooFewHooks,
     'Rendered fewer hooks than expected. This may be caused by an accidental ' +
-      'early return statement.',
+    'early return statement.',
   );
 
   return children;
@@ -803,12 +806,12 @@ function mountState<S>(
   });
   const dispatch: Dispatch<
     BasicStateAction<S>,
-  > = (queue.dispatch = (dispatchAction.bind(
-    null,
-    // Flow doesn't know this is non-null, but we do.
-    ((currentlyRenderingFiber: any): Fiber),
-    queue,
-  ): any));
+    > = (queue.dispatch = (dispatchAction.bind(
+      null,
+      // Flow doesn't know this is non-null, but we do.
+      ((currentlyRenderingFiber: any): Fiber),
+      queue,
+    ): any));
   return [hook.memoizedState, dispatch];
 }
 
@@ -844,9 +847,9 @@ function pushEffect(tag, create, destroy, deps) {
   return effect;
 }
 
-function mountRef<T>(initialValue: T): {current: T} {
+function mountRef<T>(initialValue: T): { current: T } {
   const hook = mountWorkInProgressHook();
-  const ref = {current: initialValue};
+  const ref = { current: initialValue };
   if (__DEV__) {
     Object.seal(ref);
   }
@@ -854,7 +857,7 @@ function mountRef<T>(initialValue: T): {current: T} {
   return ref;
 }
 
-function updateRef<T>(initialValue: T): {current: T} {
+function updateRef<T>(initialValue: T): { current: T } {
   const hook = updateWorkInProgressHook();
   return hook.memoizedState;
 }
@@ -937,7 +940,7 @@ function updateLayoutEffect(
 
 function imperativeHandleEffect<T>(
   create: () => T,
-  ref: {current: T | null} | ((inst: T | null) => mixed) | null | void,
+  ref: { current: T | null } | ((inst: T | null) => mixed) | null | void,
 ) {
   if (typeof ref === 'function') {
     const refCallback = ref;
@@ -952,7 +955,7 @@ function imperativeHandleEffect<T>(
       warning(
         refObject.hasOwnProperty('current'),
         'Expected useImperativeHandle() first argument to either be a ' +
-          'ref callback or React.createRef() object. Instead received: %s.',
+        'ref callback or React.createRef() object. Instead received: %s.',
         'an object with keys {' + Object.keys(refObject).join(', ') + '}',
       );
     }
@@ -965,7 +968,7 @@ function imperativeHandleEffect<T>(
 }
 
 function mountImperativeHandle<T>(
-  ref: {current: T | null} | ((inst: T | null) => mixed) | null | void,
+  ref: { current: T | null } | ((inst: T | null) => mixed) | null | void,
   create: () => T,
   deps: Array<mixed> | void | null,
 ): void {
@@ -973,7 +976,7 @@ function mountImperativeHandle<T>(
     warning(
       typeof create === 'function',
       'Expected useImperativeHandle() second argument to be a function ' +
-        'that creates a handle. Instead received: %s.',
+      'that creates a handle. Instead received: %s.',
       create !== null ? typeof create : 'null',
     );
   }
@@ -991,7 +994,7 @@ function mountImperativeHandle<T>(
 }
 
 function updateImperativeHandle<T>(
-  ref: {current: T | null} | ((inst: T | null) => mixed) | null | void,
+  ref: { current: T | null } | ((inst: T | null) => mixed) | null | void,
   create: () => T,
   deps: Array<mixed> | void | null,
 ): void {
@@ -999,7 +1002,7 @@ function updateImperativeHandle<T>(
     warning(
       typeof create === 'function',
       'Expected useImperativeHandle() second argument to be a function ' +
-        'that creates a handle. Instead received: %s.',
+      'that creates a handle. Instead received: %s.',
       create !== null ? typeof create : 'null',
     );
   }
@@ -1087,15 +1090,15 @@ function dispatchAction<S, A>(
   invariant(
     numberOfReRenders < RE_RENDER_LIMIT,
     'Too many re-renders. React limits the number of renders to prevent ' +
-      'an infinite loop.',
+    'an infinite loop.',
   );
 
   if (__DEV__) {
     warning(
       arguments.length <= 3,
       "State updates from the useState() and useReducer() Hooks don't support the " +
-        'second callback argument. To execute a side effect after ' +
-        'rendering, declare it in the component body with useEffect().',
+      'second callback argument. To execute a side effect after ' +
+      'rendering, declare it in the component body with useEffect().',
     );
   }
 
@@ -1274,9 +1277,9 @@ if (__DEV__) {
     warning(
       false,
       'Context can only be read while React is rendering. ' +
-        'In classes, you can read it in the render method or getDerivedStateFromProps. ' +
-        'In function components, you can read it directly in the function body, but not ' +
-        'inside Hooks like useReducer() or useMemo().',
+      'In classes, you can read it in the render method or getDerivedStateFromProps. ' +
+      'In function components, you can read it directly in the function body, but not ' +
+      'inside Hooks like useReducer() or useMemo().',
     );
   };
 
@@ -1284,9 +1287,9 @@ if (__DEV__) {
     warning(
       false,
       'Do not call Hooks inside useEffect(...), useMemo(...), or other built-in Hooks. ' +
-        'You can only call Hooks at the top level of your React function. ' +
-        'For more information, see ' +
-        'https://fb.me/rules-of-hooks',
+      'You can only call Hooks at the top level of your React function. ' +
+      'For more information, see ' +
+      'https://fb.me/rules-of-hooks',
     );
   };
 
@@ -1322,7 +1325,7 @@ if (__DEV__) {
       return mountEffect(create, deps);
     },
     useImperativeHandle<T>(
-      ref: {current: T | null} | ((inst: T | null) => mixed) | null | void,
+      ref: { current: T | null } | ((inst: T | null) => mixed) | null | void,
       create: () => T,
       deps: Array<mixed> | void | null,
     ): void {
@@ -1367,7 +1370,7 @@ if (__DEV__) {
         ReactCurrentDispatcher.current = prevDispatcher;
       }
     },
-    useRef<T>(initialValue: T): {current: T} {
+    useRef<T>(initialValue: T): { current: T } {
       currentHookNameInDev = 'useRef';
       mountHookTypesDev();
       return mountRef(initialValue);
@@ -1422,7 +1425,7 @@ if (__DEV__) {
       return mountEffect(create, deps);
     },
     useImperativeHandle<T>(
-      ref: {current: T | null} | ((inst: T | null) => mixed) | null | void,
+      ref: { current: T | null } | ((inst: T | null) => mixed) | null | void,
       create: () => T,
       deps: Array<mixed> | void | null,
     ): void {
@@ -1464,7 +1467,7 @@ if (__DEV__) {
         ReactCurrentDispatcher.current = prevDispatcher;
       }
     },
-    useRef<T>(initialValue: T): {current: T} {
+    useRef<T>(initialValue: T): { current: T } {
       currentHookNameInDev = 'useRef';
       updateHookTypesDev();
       return mountRef(initialValue);
@@ -1519,7 +1522,7 @@ if (__DEV__) {
       return updateEffect(create, deps);
     },
     useImperativeHandle<T>(
-      ref: {current: T | null} | ((inst: T | null) => mixed) | null | void,
+      ref: { current: T | null } | ((inst: T | null) => mixed) | null | void,
       create: () => T,
       deps: Array<mixed> | void | null,
     ): void {
@@ -1561,7 +1564,7 @@ if (__DEV__) {
         ReactCurrentDispatcher.current = prevDispatcher;
       }
     },
-    useRef<T>(initialValue: T): {current: T} {
+    useRef<T>(initialValue: T): { current: T } {
       currentHookNameInDev = 'useRef';
       updateHookTypesDev();
       return updateRef(initialValue);
@@ -1620,7 +1623,7 @@ if (__DEV__) {
       return mountEffect(create, deps);
     },
     useImperativeHandle<T>(
-      ref: {current: T | null} | ((inst: T | null) => mixed) | null | void,
+      ref: { current: T | null } | ((inst: T | null) => mixed) | null | void,
       create: () => T,
       deps: Array<mixed> | void | null,
     ): void {
@@ -1666,7 +1669,7 @@ if (__DEV__) {
         ReactCurrentDispatcher.current = prevDispatcher;
       }
     },
-    useRef<T>(initialValue: T): {current: T} {
+    useRef<T>(initialValue: T): { current: T } {
       currentHookNameInDev = 'useRef';
       warnInvalidHookAccess();
       mountHookTypesDev();
@@ -1728,7 +1731,7 @@ if (__DEV__) {
       return updateEffect(create, deps);
     },
     useImperativeHandle<T>(
-      ref: {current: T | null} | ((inst: T | null) => mixed) | null | void,
+      ref: { current: T | null } | ((inst: T | null) => mixed) | null | void,
       create: () => T,
       deps: Array<mixed> | void | null,
     ): void {
@@ -1774,7 +1777,7 @@ if (__DEV__) {
         ReactCurrentDispatcher.current = prevDispatcher;
       }
     },
-    useRef<T>(initialValue: T): {current: T} {
+    useRef<T>(initialValue: T): { current: T } {
       currentHookNameInDev = 'useRef';
       warnInvalidHookAccess();
       updateHookTypesDev();

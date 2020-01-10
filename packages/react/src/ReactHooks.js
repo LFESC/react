@@ -7,7 +7,7 @@
  * @flow
  */
 
-import type {ReactContext} from 'shared/ReactTypes';
+import type { ReactContext } from 'shared/ReactTypes';
 import invariant from 'shared/invariant';
 import warning from 'shared/warning';
 
@@ -18,11 +18,11 @@ function resolveDispatcher() {
   invariant(
     dispatcher !== null,
     'Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for' +
-      ' one of the following reasons:\n' +
-      '1. You might have mismatching versions of React and the renderer (such as React DOM)\n' +
-      '2. You might be breaking the Rules of Hooks\n' +
-      '3. You might have more than one copy of React in the same app\n' +
-      'See https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem.',
+    ' one of the following reasons:\n' +
+    '1. You might have mismatching versions of React and the renderer (such as React DOM)\n' +
+    '2. You might be breaking the Rules of Hooks\n' +
+    '3. You might have more than one copy of React in the same app\n' +
+    'See https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem.',
   );
   return dispatcher;
 }
@@ -36,13 +36,13 @@ export function useContext<T>(
     warning(
       unstable_observedBits === undefined,
       'useContext() second argument is reserved for future ' +
-        'use in React. Passing it is not supported. ' +
-        'You passed: %s.%s',
+      'use in React. Passing it is not supported. ' +
+      'You passed: %s.%s',
       unstable_observedBits,
       typeof unstable_observedBits === 'number' && Array.isArray(arguments[2])
         ? '\n\nDid you call array.map(useContext)? ' +
-          'Calling Hooks inside a loop is not supported. ' +
-          'Learn more at https://fb.me/rules-of-hooks'
+        'Calling Hooks inside a loop is not supported. ' +
+        'Learn more at https://fb.me/rules-of-hooks'
         : '',
     );
 
@@ -55,13 +55,13 @@ export function useContext<T>(
         warning(
           false,
           'Calling useContext(Context.Consumer) is not supported, may cause bugs, and will be ' +
-            'removed in a future major release. Did you mean to call useContext(Context) instead?',
+          'removed in a future major release. Did you mean to call useContext(Context) instead?',
         );
       } else if (realContext.Provider === Context) {
         warning(
           false,
           'Calling useContext(Context.Provider) is not supported. ' +
-            'Did you mean to call useContext(Context) instead?',
+          'Did you mean to call useContext(Context) instead?',
         );
       }
     }
@@ -83,7 +83,7 @@ export function useReducer<S, I, A>(
   return dispatcher.useReducer(reducer, initialArg, init);
 }
 
-export function useRef<T>(initialValue: T): {current: T} {
+export function useRef<T>(initialValue: T): { current: T } {
   const dispatcher = resolveDispatcher();
   return dispatcher.useRef(initialValue);
 }
@@ -121,7 +121,7 @@ export function useMemo(
 }
 
 export function useImperativeHandle<T>(
-  ref: {current: T | null} | ((inst: T | null) => mixed) | null | void,
+  ref: { current: T | null } | ((inst: T | null) => mixed) | null | void,
   create: () => T,
   inputs: Array<mixed> | void | null,
 ): void {

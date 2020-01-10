@@ -111,6 +111,7 @@ function defineRefPropWarningGetter(props, displayName) {
 const ReactElement = function (type, key, ref, self, source, owner, props) {
   const element = {
     // This tag allows us to uniquely identify this as a React Element
+    // 这个标签允许我们唯一地将其标识为一个React元素
     $$typeof: REACT_ELEMENT_TYPE,
 
     // Built-in properties that belong on the element
@@ -324,6 +325,7 @@ export function createElement(type, config, children) {
     self = config.__self === undefined ? null : config.__self;
     source = config.__source === undefined ? null : config.__source;
     // Remaining properties are added to a new props object
+    // 将剩余的属性添加到一个新的 props 对象中
     for (propName in config) {
       if (
         hasOwnProperty.call(config, propName) &&
@@ -336,6 +338,7 @@ export function createElement(type, config, children) {
 
   // Children can be more than one argument, and those are transferred onto
   // the newly allocated props object.
+  // Children 可以有多个参数，这些参数被转移到新分配的 props 对象上。
   const childrenLength = arguments.length - 2;
   if (childrenLength === 1) {
     props.children = children;
@@ -353,6 +356,7 @@ export function createElement(type, config, children) {
   }
 
   // Resolve default props
+  // 解析默认 props
   if (type && type.defaultProps) {
     const defaultProps = type.defaultProps;
     for (propName in defaultProps) {

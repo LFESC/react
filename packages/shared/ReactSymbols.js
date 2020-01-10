@@ -63,7 +63,7 @@ export const REACT_EVENT_TARGET_TOUCH_HIT = hasSymbol
 const MAYBE_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
 const FAUX_ITERATOR_SYMBOL = '@@iterator';
 
-export function getIteratorFn(maybeIterable: ?any): ?() => ?Iterator<*> {
+export function getIteratorFn(maybeIterable: ?any): ?() =>?Iterator<*> {
   if (maybeIterable === null || typeof maybeIterable !== 'object') {
     return null;
   }

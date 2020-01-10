@@ -361,6 +361,7 @@ export function scheduleUpdateOnFiber(
     // ReactDom.render 初次渲染，因为初次渲染调用了 unbatchedUpdates 方法设置了 workPhase = LegacyUnbatchedPhase
     if (workPhase === LegacyUnbatchedPhase) {
       // Register pending interactions on the root to avoid losing traced interaction data.
+      // 寄存器挂起根上的交互，以避免丢失跟踪的交互数据。
       schedulePendingInteraction(root, expirationTime);
 
       // This is a legacy edge case. The initial mount of a ReactDOM.render-ed
@@ -415,6 +416,10 @@ export const scheduleWork = scheduleUpdateOnFiber;
 // work without treating it as a typical update that originates from an event;
 // e.g. retrying a Suspense boundary isn't an update, but it does schedule work
 // on a fiber.
+// 这是分裂成一个单独的功能，所以我们可以标记一个 fiber 与挂起
+// 工作时不把它当作典型的来自事件的更新;
+// 例如，重试悬疑边界不是一个更新，但它确实安排了工作
+// 在 fiber 上。
 function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
   // Update the source fiber's expiration time
   if (fiber.expirationTime < expirationTime) {
@@ -425,6 +430,7 @@ function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
     alternate.expirationTime = expirationTime;
   }
   // Walk the parent path to the root and update the child expiration time.
+  // 将父路径遍历到根目录，并更新子过期时间。
   let node = fiber.return;
   let root = null;
   if (node === null && fiber.tag === HostRoot) {
@@ -490,6 +496,7 @@ function scheduleCallbackForRoot(
   const existingCallbackExpirationTime = root.callbackExpirationTime;
   if (existingCallbackExpirationTime < expirationTime) {
     // New callback has higher priority than the existing one.
+    // 新的回调比现有的具有更高的优先级。
     const existingCallbackNode = root.callbackNode;
     if (existingCallbackNode !== null) {
       cancelCallback(existingCallbackNode);
@@ -498,6 +505,7 @@ function scheduleCallbackForRoot(
 
     if (expirationTime === Sync) {
       // Sync React callbacks are scheduled on a special internal queue
+      // 同步响应回调被安排在一个特殊的内部队列上
       root.callbackNode = scheduleSyncCallback(
         runRootCallback.bind(
           null,
@@ -544,6 +552,7 @@ function scheduleCallbackForRoot(
 
   // Add the current set of interactions to the pending set associated with
   // this root.
+  // 将当前交互集添加到与此根关联的挂起集。
   schedulePendingInteraction(root, expirationTime);
 }
 
@@ -1047,6 +1056,8 @@ function renderRoot(
         // If we have exceeded the minimum loading delay, which probably
         // means we have shown a spinner already, we might have to suspend
         // a bit longer to ensure that the spinner is shown for enough time.
+        // 如果我们已经超过了最小加载延迟，这可能意味着我们已经显示了一个 spinner，
+        // 我们可能不得不暂停一段时间，以确保 spinner 显示足够的时间。
         const msUntilTimeout = computeMsUntilSuspenseLoadingDelay(
           workInProgressRootLatestProcessedExpirationTime,
           expirationTime,
@@ -2117,6 +2128,7 @@ function computeMsUntilSuspenseLoadingDelay(
   const busyDelayMs = (suspenseConfig.busyDelayMs: any) | 0;
 
   // Compute the time until this render pass would expire.
+  // 计算这个渲染通道过期的时间。
   const currentTimeMs: number = now();
   const eventTimeMs: number = inferTimeFromExpirationTime(
     mostRecentEventTime,
@@ -2126,6 +2138,7 @@ function computeMsUntilSuspenseLoadingDelay(
   if (timeElapsed <= busyDelayMs) {
     // If we haven't yet waited longer than the initial delay, we don't
     // have to wait any additional time.
+    // 如果我们的等待时间还没有超过原定的延误时间，我们就不必再等了。
     return 0;
   }
   const msUntilTimeout = busyDelayMs + busyMinDurationMs - timeElapsed;
@@ -2488,6 +2501,7 @@ function computeThreadID(root, expirationTime) {
 function schedulePendingInteraction(root, expirationTime) {
   // This is called when work is scheduled on a root. It sets up a pending
   // interaction, which is completed once the work commits.
+  // 这是在根上调度工作时调用的。它设置一个挂起的交互，该交互在工作提交后完成。
   if (!enableSchedulerTracing) {
     return;
   }

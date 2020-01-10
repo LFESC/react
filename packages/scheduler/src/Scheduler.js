@@ -57,6 +57,7 @@ var isHostCallbackScheduled = false;
 function scheduleHostCallbackIfNeeded() {
   if (isPerformingWork) {
     // Don't schedule work yet; wait until the next time we yield.
+    // 先不要安排工作;等到下次我们让步的时候。
     return;
   }
   if (firstCallbackNode !== null) {
@@ -65,6 +66,7 @@ function scheduleHostCallbackIfNeeded() {
     var expirationTime = firstCallbackNode.expirationTime;
     if (isHostCallbackScheduled) {
       // Cancel the existing host callback.
+      // 取消现有的主机回调。
       cancelHostCallback();
     } else {
       isHostCallbackScheduled = true;
@@ -373,6 +375,7 @@ function unstable_scheduleCallback(
   // 因此，新的回调被插入到任何其他具有相同到期时间的回调之后。
   if (firstCallbackNode === null) {
     // This is the first callback in the list.
+    // 这是列表中的第一个回调。
     firstCallbackNode = newNode.next = newNode.previous = newNode;
     scheduleHostCallbackIfNeeded();
   } else {

@@ -22,6 +22,7 @@ let eventQueue: ?(Array<ReactSyntheticEvent> | ReactSyntheticEvent) = null;
 
 /**
  * Dispatches an event and releases it back into the pool, unless persistent.
+ * 分派事件并将其释放回池中，除非是持久性的。
  *
  * @param {?object} event Synthetic event to be dispatched.
  * @private

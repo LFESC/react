@@ -61,6 +61,8 @@ type BookKeepingInstance = {
  * Find the deepest React component completely containing the root of the
  * passed-in instance (for use when entire React trees are nested within each
  * other). If React trees are not nested, returns null.
+ * 找到最深的React组件，该组件完全包含传入实例的根(当整个React树相互嵌套时使用)。
+ * 如果React树没有嵌套，则返回null。
  */
 function findRootContainerNode(inst) {
   // TODO: It may be a good idea to cache this to prevent unnecessary DOM

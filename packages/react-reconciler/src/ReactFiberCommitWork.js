@@ -784,6 +784,7 @@ function commitUnmount(current: Fiber): void {
       // TODO: this is recursive.
       // We are also not using this parent because
       // the portal will get pushed immediately.
+      // 我们也不使用这个父节点，因为 portal 将被立即推送。
       if (supportsMutation) {
         unmountHostComponents(current);
       } else if (supportsPersistence) {

@@ -61,12 +61,30 @@ function recomputePluginOrdering(): void {
     );
     plugins[pluginIndex] = pluginModule;
     const publishedEvents = pluginModule.eventTypes;
+    // const eventTypes = {
+    //   change: {
+    //     phasedRegistrationNames: {
+    //       bubbled: 'onChange',
+    //       captured: 'onChangeCapture',
+    //     },
+    //     dependencies: [
+    //       TOP_BLUR,
+    //       TOP_CHANGE,
+    //       TOP_CLICK,
+    //       TOP_FOCUS,
+    //       TOP_INPUT,
+    //       TOP_KEY_DOWN,
+    //       TOP_KEY_UP,
+    //       TOP_SELECTION_CHANGE,
+    //     ],
+    //   },
+    // };
     for (const eventName in publishedEvents) {
       invariant(
         publishEventForPlugin(
-          publishedEvents[eventName],
-          pluginModule,
-          eventName,
+          publishedEvents[eventName], // ChangeEventPlugin.eventTypes.change
+          pluginModule, // ChangeEventPlugin
+          eventName, // change
         ),
         'EventPluginRegistry: Failed to publish event `%s` for plugin `%s`.',
         eventName,
@@ -86,9 +104,9 @@ function recomputePluginOrdering(): void {
  * @private
  */
 function publishEventForPlugin(
-  dispatchConfig: DispatchConfig,
-  pluginModule: PluginModule<AnyNativeEvent>,
-  eventName: string,
+  dispatchConfig: DispatchConfig, // ChangeEventPlugin.eventTypes.change
+  pluginModule: PluginModule<AnyNativeEvent>, // ChangeEventPlugin
+  eventName: string, // change
 ): boolean {
   invariant(
     !eventNameDispatchConfigs.hasOwnProperty(eventName),
@@ -99,14 +117,21 @@ function publishEventForPlugin(
   eventNameDispatchConfigs[eventName] = dispatchConfig;
 
   const phasedRegistrationNames = dispatchConfig.phasedRegistrationNames;
+  // change: {
+  //   phasedRegistrationNames: {
+  //     bubbled: 'onChange',
+  //     captured: 'onChangeCapture',
+  //   },
+  //   ...
+  // }
   if (phasedRegistrationNames) {
     for (const phaseName in phasedRegistrationNames) {
       if (phasedRegistrationNames.hasOwnProperty(phaseName)) {
-        const phasedRegistrationName = phasedRegistrationNames[phaseName];
+        const phasedRegistrationName = phasedRegistrationNames[phaseName]; // onChange or onChangeCapture
         publishRegistrationName(
-          phasedRegistrationName,
-          pluginModule,
-          eventName,
+          phasedRegistrationName, // onChange or onChangeCapture
+          pluginModule, // ChangeEventPlugin
+          eventName, // change
         );
       }
     }
@@ -124,15 +149,16 @@ function publishEventForPlugin(
 
 /**
  * Publishes a registration name that is used to identify dispatched events.
+ * 发布用于标识已调度事件的注册名称。
  *
  * @param {string} registrationName Registration name to add.
  * @param {object} PluginModule Plugin publishing the event.
  * @private
  */
 function publishRegistrationName(
-  registrationName: string,
-  pluginModule: PluginModule<AnyNativeEvent>,
-  eventName: string,
+  registrationName: string, // onChange or onChangeCapture
+  pluginModule: PluginModule<AnyNativeEvent>, // ChangeEventPlugin
+  eventName: string, // change
 ): void {
   invariant(
     !registrationNameModules[registrationName],
@@ -204,6 +230,14 @@ export const possibleRegistrationNames = __DEV__ ? {} : (null: any);
  * @internal
  * @see {EventPluginHub.injection.injectEventPluginOrder}
  */
+// injectedEventPluginOrder = [
+//   'ResponderEventPlugin',
+//   'SimpleEventPlugin',
+//   'EnterLeaveEventPlugin',
+//   'ChangeEventPlugin',
+//   'SelectEventPlugin',
+//   'BeforeInputEventPlugin',
+// ];
 export function injectEventPluginOrder(
   injectedEventPluginOrder: EventPluginOrder,
 ): void {
@@ -213,6 +247,7 @@ export function injectEventPluginOrder(
     'once. You are likely trying to load more than one copy of React.',
   );
   // Clone the ordering so it cannot be dynamically mutated.
+  // 克隆排序，这样就不能动态地改变它。
   eventPluginOrder = Array.prototype.slice.call(injectedEventPluginOrder);
   recomputePluginOrdering();
 }
@@ -230,6 +265,13 @@ export function injectEventPluginOrder(
  * @internal
  * @see {EventPluginHub.injection.injectEventPluginsByName}
  */
+// injectedNamesToPlugins: {
+//   SimpleEventPlugin: SimpleEventPlugin,
+//   EnterLeaveEventPlugin: EnterLeaveEventPlugin,
+//   ChangeEventPlugin: ChangeEventPlugin,
+//   SelectEventPlugin: SelectEventPlugin,
+//   BeforeInputEventPlugin: BeforeInputEventPlugin,
+// }
 export function injectEventPluginsByName(
   injectedNamesToPlugins: NamesToPlugins,
 ): void {

@@ -67,11 +67,13 @@ export function getInstanceFromNode(node) {
 /**
  * Given a ReactDOMComponent or ReactDOMTextComponent, return the corresponding
  * DOM node.
+ * 给定一个ReactDOMComponent或ReactDOMTextComponent，返回相应的DOM节点。
  */
 export function getNodeFromInstance(inst) {
   if (inst.tag === HostComponent || inst.tag === HostText) {
     // In Fiber this, is just the state node right now. We assume it will be
     // a host component or host text.
+    // 在 Fiber 中，这是现在的状态节点。我们假设它是一个主机组件或主机文本。
     return inst.stateNode;
   }
 

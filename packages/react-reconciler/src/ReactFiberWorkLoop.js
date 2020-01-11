@@ -248,6 +248,8 @@ let interruptedBy: Fiber | null = null;
 // In other words, because expiration times determine how updates are batched,
 // we want all updates of like priority that occur within the same event to
 // receive the same expiration time. Otherwise we get tearing.
+// 换句话说，因为过期时间决定更新的批处理方式，所以我们希望在同一事件中发生的所有具有类似优先级的更新都接收相同的过期时间。
+// 否则我们会流泪。
 let currentEventTime: ExpirationTime = NoWork;
 
 export function requestCurrentTime() {
@@ -688,6 +690,7 @@ export function batchedUpdates<A, R>(fn: A => R, a: A): R {
   } finally {
     workPhase = NotWorking;
     // Flush the immediate callbacks that were scheduled during this batch
+    // 刷新此批处理期间调度的即时回调
     flushSyncCallbackQueue();
   }
 }
@@ -695,6 +698,7 @@ export function batchedUpdates<A, R>(fn: A => R, a: A): R {
 export function batchedEventUpdates<A, R>(fn: A => R, a: A): R {
   if (workPhase !== NotWorking) {
     // We're already working, or inside a batch, so batchedUpdates is a no-op.
+    // 我们已经在工作了，或者在一个批处理中，所以batchedUpdates是一个no-op。
     return fn(a);
   }
   const prevWorkPhase = workPhase;
@@ -704,6 +708,7 @@ export function batchedEventUpdates<A, R>(fn: A => R, a: A): R {
   } finally {
     workPhase = prevWorkPhase;
     // Flush the immediate callbacks that were scheduled during this batch
+    // 刷新此批处理期间调度的即时回调
     flushSyncCallbackQueue();
   }
 }
@@ -1660,6 +1665,7 @@ function commitRootImpl(root) {
   if (rootDoesHavePassiveEffects) {
     // This commit has passive effects. Stash a reference to them. But don't
     // schedule a callback until after flushing layout work.
+    // 这个 commit 有消极影响。存储一个引用指向它。但是在刷新布局工作之前不要安排回调。
     rootDoesHavePassiveEffects = false;
     rootWithPendingPassiveEffects = root;
     pendingPassiveEffectsExpirationTime = expirationTime;

@@ -139,6 +139,7 @@ function extractPluginEvents(
   let events = null;
   for (let i = 0; i < plugins.length; i++) {
     // Not every plugin in the ordering may be loaded at runtime.
+    // 不是每个插件都可以在运行时加载。
     const possiblePlugin: PluginModule<AnyNativeEvent> = plugins[i];
     if (possiblePlugin) {
       const extractedEvents = possiblePlugin.extractEvents(

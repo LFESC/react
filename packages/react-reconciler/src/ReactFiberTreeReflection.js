@@ -7,12 +7,12 @@
  * @flow
  */
 
-import type {Fiber} from './ReactFiber';
+import type { Fiber } from './ReactFiber';
 
 import invariant from 'shared/invariant';
 import warningWithoutStack from 'shared/warningWithoutStack';
 
-import {get as getInstance} from 'shared/ReactInstanceMap';
+import { get as getInstance } from 'shared/ReactInstanceMap';
 import ReactSharedInternals from 'shared/ReactSharedInternals';
 import getComponentName from 'shared/getComponentName';
 import {
@@ -22,7 +22,7 @@ import {
   HostPortal,
   HostText,
 } from 'shared/ReactWorkTags';
-import {NoEffect, Placement} from 'shared/ReactSideEffectTags';
+import { NoEffect, Placement } from 'shared/ReactSideEffectTags';
 
 const ReactCurrentOwner = ReactSharedInternals.ReactCurrentOwner;
 
@@ -35,6 +35,7 @@ function isFiberMountedImpl(fiber: Fiber): number {
   if (!fiber.alternate) {
     // If there is no alternate, this might be a new tree that isn't inserted
     // yet. If it is, then it will have a pending insertion effect on it.
+    // 如果没有替代，这可能是一个还没有插入的新树。如果是，那么它将有一个挂起的插入效果。
     if ((node.effectTag & Placement) !== NoEffect) {
       return MOUNTING;
     }
@@ -72,10 +73,10 @@ export function isMounted(component: React$Component<any, any>): boolean {
       warningWithoutStack(
         instance._warnedAboutRefsInRender,
         '%s is accessing isMounted inside its render() function. ' +
-          'render() should be a pure function of props and state. It should ' +
-          'never access something that requires stale data from the previous ' +
-          'render, such as refs. Move this logic to componentDidMount and ' +
-          'componentDidUpdate instead.',
+        'render() should be a pure function of props and state. It should ' +
+        'never access something that requires stale data from the previous ' +
+        'render, such as refs. Move this logic to componentDidMount and ' +
+        'componentDidUpdate instead.',
         getComponentName(ownerFiber.type) || 'A component',
       );
       instance._warnedAboutRefsInRender = true;
@@ -210,7 +211,7 @@ export function findCurrentFiberUsingSlowPath(fiber: Fiber): Fiber | null {
         invariant(
           didFindChild,
           'Child was not found in either parent set. This indicates a bug ' +
-            'in React related to the return pointer. Please file an issue.',
+          'in React related to the return pointer. Please file an issue.',
         );
       }
     }
@@ -218,7 +219,7 @@ export function findCurrentFiberUsingSlowPath(fiber: Fiber): Fiber | null {
     invariant(
       a.alternate === b,
       "Return fibers should always be each others' alternates. " +
-        'This error is likely caused by a bug in React. Please file an issue.',
+      'This error is likely caused by a bug in React. Please file an issue.',
     );
   }
   // If the root is not a host container, we're in a disconnected tree. I.e.

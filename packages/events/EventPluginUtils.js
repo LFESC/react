@@ -59,6 +59,7 @@ if (__DEV__) {
 
 /**
  * Dispatch the event to the listener.
+ * 将事件分派给侦听器。
  * @param {SyntheticEvent} event SyntheticEvent to handle
  * @param {function} listener Application-level callback
  * @param {*} inst Internal component instance

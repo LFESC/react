@@ -417,6 +417,7 @@ export function renderWithHooks(
       numberOfReRenders += 1;
 
       // Start over from the beginning of the list
+      // 从列表的开头重新开始
       nextCurrentHook = current !== null ? current.memoizedState : null;
       nextWorkInProgressHook = firstWorkInProgressHook;
 
@@ -566,7 +567,10 @@ function updateWorkInProgressHook(): Hook {
   // render phase update. It assumes there is either a current hook we can
   // clone, or a work-in-progress hook from a previous render pass that we can
   // use as a base. When we reach the end of the base list, we must switch to
-  // the dispatcher used for mounts.
+  // the dispatcher used for mounts.x
+  // 这个函数既用于更新，也用于渲染阶段更新触发的重新渲染。
+  // 它假设存在一个我们可以克隆的当前 hook，或者一个我们可以用作基础的来自以前渲染传递的正在工作的 hook。
+  // 当到达基本列表的末尾时，必须切换到用于挂载的调度程序。
   if (nextWorkInProgressHook !== null) {
     // There's already a work-in-progress. Reuse it.
     workInProgressHook = nextWorkInProgressHook;
@@ -659,9 +663,11 @@ function updateReducer<S, I, A>(
   if (numberOfReRenders > 0) {
     // This is a re-render. Apply the new render phase updates to the previous
     // work-in-progress hook.
+    // 这是重新渲染。将新的呈现阶段更新应用到前面的工作进度挂钩。
     const dispatch: Dispatch<A> = (queue.dispatch: any);
     if (renderPhaseUpdates !== null) {
       // Render phase updates are stored in a map of queue -> linked list
+      // 渲染阶段的更新是存储在一个映射的队列->链表
       const firstRenderPhaseUpdate = renderPhaseUpdates.get(queue);
       if (firstRenderPhaseUpdate !== undefined) {
         renderPhaseUpdates.delete(queue);
@@ -671,6 +677,7 @@ function updateReducer<S, I, A>(
           // Process this render phase update. We don't have to check the
           // priority because it will always be the same as the current
           // render's.
+          // 处理这个渲染阶段的更新。我们不需要检查优先级，因为它总是与当前渲染相同。
           const action = update.action;
           newState = reducer(newState, action);
           update = update.next;
@@ -678,6 +685,7 @@ function updateReducer<S, I, A>(
 
         // Mark that the fiber performed work, but only if the new state is
         // different from the current state.
+        // 标记 fiber 执行的工作，但仅当新状态与当前状态不同时。
         if (!is(newState, hook.memoizedState)) {
           markWorkInProgressReceivedUpdate();
         }
@@ -712,6 +720,9 @@ function updateReducer<S, I, A>(
       // For the first update, the queue is a circular linked list where
       // `queue.last.next = queue.first`. Once the first update commits, and
       // the `baseUpdate` is no longer empty, we can unravel the list.
+      // 对于第一次更新，队列是一个循环链表，其中' queue.last。
+      // 下一个= queue.first '。
+      // 一旦第一次更新提交，并且' baseUpdate '不再为空，我们就可以解开列表。
       last.next = null;
     }
     first = baseUpdate.next;
@@ -731,17 +742,21 @@ function updateReducer<S, I, A>(
         // Priority is insufficient. Skip this update. If this is the first
         // skipped update, the previous update/state is the new base
         // update/state.
+        // 优先次序不够。跳过这个更新。
+        // 如果这是第一次跳过的更新，那么之前的更新/状态就是新的基本更新/状态。
         if (!didSkip) {
           didSkip = true;
           newBaseUpdate = prevUpdate;
           newBaseState = newState;
         }
         // Update the remaining priority in the queue.
+        // 更新队列中剩余的优先级。
         if (updateExpirationTime > remainingExpirationTime) {
           remainingExpirationTime = updateExpirationTime;
         }
       } else {
         // This update does have sufficient priority.
+        // 这个更新有足够的优先级。
 
         // Mark the event time of this update as relevant to this render pass.
         // TODO: This should ideally use the true event time of this update rather than
@@ -758,6 +773,7 @@ function updateReducer<S, I, A>(
         if (update.eagerReducer === reducer) {
           // If this update was processed eagerly, and its reducer matches the
           // current reducer, we can use the eagerly computed state.
+          // 如果这个更新被急切地处理，并且它的 reducer 与当前的 reducer 匹配，我们可以使用急切地计算的状态。
           newState = ((update.eagerState: any): S);
         } else {
           const action = update.action;
@@ -1110,6 +1126,9 @@ function dispatchAction<S, A>(
     // This is a render phase update. Stash it in a lazily-created map of
     // queue -> linked list of updates. After this render pass, we'll restart
     // and apply the stashed updates on top of the work-in-progress hook.
+    // 这是渲染阶段的更新。
+    // 将它保存在一个惰性创建的队列映射->更新链表中。
+    // 在这个渲染传递之后，我们将重新启动并在正在进行的钩子上应用隐藏的更新。
     didScheduleRenderPhaseUpdate = true;
     const update: Update<S, A> = {
       expirationTime: renderExpirationTime,
@@ -1127,6 +1146,7 @@ function dispatchAction<S, A>(
       renderPhaseUpdates.set(queue, update);
     } else {
       // Append the update to the end of the list.
+      // 将更新追加到列表的末尾。
       let lastRenderPhaseUpdate = firstRenderPhaseUpdate;
       while (lastRenderPhaseUpdate.next !== null) {
         lastRenderPhaseUpdate = lastRenderPhaseUpdate.next;
@@ -1156,14 +1176,17 @@ function dispatchAction<S, A>(
     };
 
     // Append the update to the end of the list.
+    // 将更新追加到列表的末尾。
     const last = queue.last;
     if (last === null) {
       // This is the first update. Create a circular list.
+      // 这是第一次更新。创建一个循环列表。
       update.next = update;
     } else {
       const first = last.next;
       if (first !== null) {
         // Still circular.
+        // 循环。
         update.next = first;
       }
       last.next = update;
@@ -1177,6 +1200,8 @@ function dispatchAction<S, A>(
       // The queue is currently empty, which means we can eagerly compute the
       // next state before entering the render phase. If the new state is the
       // same as the current state, we may be able to bail out entirely.
+      // 队列当前是空的，这意味着我们可以在进入渲染阶段之前急切地计算下一个状态。
+      // 如果新的 state 和现在的 state 一样，我们也许能完全摆脱困境。
       const lastRenderedReducer = queue.lastRenderedReducer;
       if (lastRenderedReducer !== null) {
         let prevDispatcher;
@@ -1191,6 +1216,8 @@ function dispatchAction<S, A>(
           // it, on the update object. If the reducer hasn't changed by the
           // time we enter the render phase, then the eager state can be used
           // without calling the reducer again.
+          // 将急切计算的状态和用于计算它的 reducer 保存在更新对象上。
+          // 如果在我们进入渲染阶段的时候，reducer 还没有改变，那么可以在不再次调用 reducer 的情况下使用eager状态。
           update.eagerReducer = lastRenderedReducer;
           update.eagerState = eagerState;
           if (is(eagerState, currentState)) {
@@ -1198,6 +1225,8 @@ function dispatchAction<S, A>(
             // It's still possible that we'll need to rebase this update later,
             // if the component re-renders for a different reason and by that
             // time the reducer has changed.
+            // 快捷路径。我们可以退出而不调度反应重新渲染。
+            // 如果组件因为不同的原因重新呈现，而此时 reducer 已经改变了，我们仍然有可能需要在以后重新调整这个更新。
             return;
           }
         } catch (error) {
